@@ -1,37 +1,26 @@
-"""
-resume_parser.py
-────────────────
-Resume PDF parser using PyMuPDF (pymupdf).
-
-Extracts three key sections from a resume:
-  • Skills
-  • Experience
-  • Projects
-
-Usage (standalone):
-    python resume_parser.py path/to/resume.pdf
-
-Usage (as a module):
-    from services.resume_parser import parse_resume
-    result = parse_resume("path/to/resume.pdf")
-    # result is a dict with keys: raw_text, skills, experience, projects, metadata
-"""
-
 import re
 import json
 import sys
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 try:
     import pymupdf                       # pymupdf >= 1.23 (fitz renamed)
 except ImportError:
     import fitz as pymupdf               # older versions exposed as fitz
 
+try:
+    from google import genai
+    from google.genai import types
+    HAS_GENAI = True
+except ImportError:
+    HAS_GENAI = False
 
-# ─── Section heading patterns ─────────────────────────────────────────────────
-# These regex patterns match common resume section headings (case-insensitive).
-# Order matters: more specific patterns should come before generic ones.
+# Load env for GEMINI_API_KEY
+load_dotenv()
 
+# ─── Section heading patterns (REGEX Fallback) ────────────────────────────────
 SECTION_PATTERNS = {
     "skills": re.compile(
         r"^\s*(technical\s+skills?|skills?\s*(&|and)?\s*(summary)?|"
@@ -51,8 +40,6 @@ SECTION_PATTERNS = {
     ),
 }
 
-# Headings that signal the START of a NEW (untracked) section — used to stop
-# collecting content for the current section.
 GENERIC_SECTION_HEADING = re.compile(
     r"^\s*(education|certifications?|awards?|achievements?|honours?|"
     r"publications?|references?|languages?|hobbies|interests?|"
@@ -62,275 +49,214 @@ GENERIC_SECTION_HEADING = re.compile(
 )
 
 
-# ─── Text extraction ──────────────────────────────────────────────────────────
+# ─── Enhanced Text extraction ──────────────────────────────────────────────────
 
-def extract_raw_text(pdf_path: str) -> tuple[str, dict]:
+def extract_raw_text(pdf_path: str = None, pdf_bytes: bytes = None) -> tuple[str, dict]:
     """
-    Open a PDF with PyMuPDF and return:
+    Open a PDF and return:
       - full concatenated text (str)
-      - metadata dict (title, author, page_count)
+      - metadata dict
+    Uses block analysis to handle multi-column layouts.
     """
-    doc = pymupdf.open(pdf_path)
-    pages_text = []
+    if pdf_bytes:
+        doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
+    else:
+        doc = pymupdf.open(pdf_path)
+
+    full_text_parts = []
 
     for page in doc:
-        # Use "text" mode — plain UTF-8, preserves line breaks
-        pages_text.append(page.get_text("text"))
+        # Get text blocks: (x0, y0, x1, y1, "text", block_no, block_type)
+        blocks = page.get_text("blocks")
+        
+        # Sort blocks: Primary by top-y (row), Secondary by left-x (column)
+        # We allow a 5pt tolerance for "same row" to handle minor misalignments
+        blocks.sort(key=lambda b: (b[1] // 5, b[0]))
+        
+        page_text = "\n".join([b[4].strip() for b in blocks if b[4].strip()])
+        full_text_parts.append(page_text)
 
-    full_text = "\n".join(pages_text)
+    full_text = "\n\n".join(full_text_parts)
 
     metadata = {
         "title":      doc.metadata.get("title", ""),
         "author":     doc.metadata.get("author", ""),
         "page_count": doc.page_count,
-        "file_name":  Path(pdf_path).name,
+        "file_name":  Path(pdf_path).name if pdf_path else "upload.pdf",
     }
 
     doc.close()
     return full_text, metadata
 
 
-# ─── Section splitter ─────────────────────────────────────────────────────────
+# ─── Gemini LLM Parser ────────────────────────────────────────────────────────
+
+def parse_with_gemini(raw_text: str) -> dict:
+    """Extract structured data using Gemini 2.5 Flash."""
+    api_key = os.getenv('GEMINI_API_KEY')
+    if not api_key or not HAS_GENAI:
+        raise ValueError("Gemini API key not found or google-genai not installed.")
+
+    client = genai.Client(api_key=api_key)
+    
+    system_prompt = (
+        "You are an expert resume parser. Your task is to extract structured information "
+        "from resume text. Focus on accuracy and complete extraction of details."
+    )
+
+    user_prompt = (
+        "Extract structured JSON from the following resume text. "
+        "Return ONLY valid JSON in this structure:\n"
+        "{\n"
+        '  "skills": ["Skill 1", "Skill 2"],\n'
+        '  "experience": [\n'
+        '    {"title": "Role", "company": "Company", "duration": "Dates", "description": "Details"}\n'
+        '  ],\n'
+        '  "projects": [\n'
+        '    {"name": "Project Name", "technologies": ["Tech 1"], "description": "Details"}\n'
+        '  ]\n'
+        "}\n\n"
+        f"Resume Text:\n{raw_text[:8000]}" # Limit to 8k chars to avoid token issues
+    )
+
+    try:
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            config=types.GenerateContentConfig(system_instruction=system_prompt),
+            contents=user_prompt,
+        )
+        
+        text = response.text.strip()
+        # Clean markdown fences
+        if text.startswith('```'):
+            text = re.sub(r'^```json\s*', '', text)
+            text = re.sub(r'\s*```$', '', text)
+        
+        return json.loads(text)
+    except Exception as e:
+        print(f"[Gemini Parser Error] {e}")
+        return None
+
+
+# ─── Regex Fallback Parser ────────────────────────────────────────────────────
 
 def _find_section_spans(text: str) -> dict[str, tuple[int, int]]:
-    """
-    Scan through the text line by line and record (start, end) character
-    positions for each tracked section.
-
-    Returns a dict like:
-        { "skills": (120, 450), "experience": (451, 900), "projects": (901, 1200) }
-    """
     lines = text.split("\n")
-    # Build list of (char_offset, heading_name) for every heading found
     offset = 0
-    heading_positions: list[tuple[int, str]] = []
+    heading_positions = []
 
     for line in lines:
-        line_len = len(line) + 1   # +1 for the '\n'
+        line_len = len(line) + 1
         for section_name, pattern in SECTION_PATTERNS.items():
             if pattern.match(line):
                 heading_positions.append((offset, section_name))
                 break
         else:
-            # Check generic headings (to act as terminators)
             if GENERIC_SECTION_HEADING.match(line):
                 heading_positions.append((offset, "__other__"))
         offset += line_len
 
-    # Now compute spans for tracked sections
-    spans: dict[str, tuple[int, int]] = {}
+    spans = {}
     for i, (start_pos, name) in enumerate(heading_positions):
-        if name == "__other__":
-            continue
-        # Content starts after this heading line
-        content_start = start_pos + text[start_pos:].index("\n") + 1
-        # Content ends at the next ANY heading (or end of text)
+        if name == "__other__": continue
+        try:
+            content_start = start_pos + text[start_pos:].index("\n") + 1
+        except ValueError: continue
+        
         if i + 1 < len(heading_positions):
-            next_heading_pos = heading_positions[i + 1][0]
-            content_end = next_heading_pos
+            content_end = heading_positions[i + 1][0]
         else:
             content_end = len(text)
         spans[name] = (content_start, content_end)
-
     return spans
 
-
-# ─── Skills parser ────────────────────────────────────────────────────────────
-
-def parse_skills(raw: str) -> list[str]:
-    """
-    Convert a raw skills block into a clean list of individual skill tokens.
-    Handles comma / bullet / pipe / newline separated lists.
-    """
-    # Replace common separators with commas
-    normalised = re.sub(r"[•●▪▸►\-–|/]", ",", raw)
-    tokens = [t.strip() for t in re.split(r"[,\n]+", normalised)]
-    # Drop empty strings and very long pseudo-sentences
-    skills = [t for t in tokens if 1 < len(t) < 60 and not t.isdigit()]
-    return skills
-
-
-# ─── Experience parser ────────────────────────────────────────────────────────
-
-_DATE_PATTERN = re.compile(
-    r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[\s,.-]+"
-    r"(\d{4})\s*[-–to]+\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|Present|Current)?[a-z]*[\s,.-]*(\d{4})?",
-    re.IGNORECASE,
-)
-
-
-def parse_experience(raw: str) -> list[dict]:
-    """
-    Split experience block into individual job entries.
-    Each entry is a dict: { title, company, duration, description }
-    """
-    # Split on blank lines or lines that look like new job headers
-    blocks = re.split(r"\n{2,}", raw.strip())
-    entries = []
-
-    for block in blocks:
-        block = block.strip()
-        if not block:
-            continue
-
-        lines = [l.strip() for l in block.split("\n") if l.strip()]
-        if not lines:
-            continue
-
-        date_match = _DATE_PATTERN.search(block)
-        duration = date_match.group(0).strip() if date_match else ""
-
-        # Heuristic: first line = job title/company
-        header = lines[0]
-        # Try to split "Title at/@ Company" or "Title | Company"
-        company_split = re.split(r"\s+(?:at|@|\||-)\s+", header, maxsplit=1, flags=re.IGNORECASE)
-        title   = company_split[0].strip() if company_split else header
-        company = company_split[1].strip() if len(company_split) > 1 else ""
-
-        description_lines = lines[1:]
-        # Remove the date line from description if already captured
-        if date_match:
-            description_lines = [
-                l for l in description_lines
-                if not _DATE_PATTERN.search(l)
-            ]
-        description = " ".join(description_lines).strip()
-
-        entries.append({
-            "title":       title,
-            "company":     company,
-            "duration":    duration,
-            "description": description,
-        })
-
-    return entries
-
-
-# ─── Projects parser ──────────────────────────────────────────────────────────
-
-def parse_projects(raw: str) -> list[dict]:
-    """
-    Split projects block into individual project entries.
-    Each entry: { name, technologies, description }
-    """
-    blocks = re.split(r"\n{2,}", raw.strip())
-    entries = []
-
-    for block in blocks:
-        block = block.strip()
-        if not block:
-            continue
-
-        lines = [l.strip() for l in block.split("\n") if l.strip()]
-        if not lines:
-            continue
-
-        name = lines[0]
-
-        # Look for a tech stack hint: "Tech: X, Y" or "(Python, Flask)"
-        tech_match = re.search(
-            r"(?:Tech(?:nologies)?[:\s]+|Built\s+with[:\s]+|\()([\w\s,./+#-]+)\)?",
-            block,
-            re.IGNORECASE,
-        )
-        technologies = [t.strip() for t in tech_match.group(1).split(",") if t.strip()] if tech_match else []
-
-        desc_lines = lines[1:]
-        if tech_match:
-            desc_lines = [l for l in desc_lines if tech_match.group(0).strip() not in l]
-        description = " ".join(desc_lines).strip()
-
-        entries.append({
-            "name":         name,
-            "technologies": technologies,
-            "description":  description,
-        })
-
-    return entries
-
-
-# ─── Main public API ──────────────────────────────────────────────────────────
-
-def parse_resume(pdf_path: str) -> dict:
-    """
-    Parse a resume PDF and return a structured JSON-friendly dict.
-
-    Returns:
-    {
-        "metadata": { "file_name", "page_count", "title", "author" },
-        "raw_text": "...",  # full extracted text
-        "skills":     [ "Python", "React", ... ],
-        "experience": [ { "title", "company", "duration", "description" }, ... ],
-        "projects":   [ { "name", "technologies", "description" }, ... ]
-    }
-    """
-    if not Path(pdf_path).exists():
-        raise FileNotFoundError(f"PDF not found: {pdf_path}")
-
-    # 1. Extract raw text + metadata
-    raw_text, metadata = extract_raw_text(pdf_path)
-
-    # 2. Locate section spans
+def parse_regex_fallback(raw_text: str) -> dict:
+    """Original regex-based parsing logic as a fallback."""
     spans = _find_section_spans(raw_text)
-
-    # 3. Parse each section
-    def get_section(name: str) -> str:
-        if name not in spans:
-            return ""
+    
+    def get_section(name):
+        if name not in spans: return ""
         start, end = spans[name]
         return raw_text[start:end].strip()
 
-    skills_raw     = get_section("skills")
-    experience_raw = get_section("experience")
-    projects_raw   = get_section("projects")
+    skills_raw = get_section("skills")
+    exp_raw = get_section("experience")
+    proj_raw = get_section("projects")
+
+    # Original Helper Parsers
+    def _parse_skills(raw):
+        normalised = re.sub(r"[•●▪▸►\-–|/]", ",", raw)
+        tokens = [t.strip() for t in re.split(r"[,\n]+", normalised)]
+        return [t for t in tokens if 1 < len(t) < 60 and not t.isdigit()]
+
+    def _parse_exp(raw):
+        blocks = re.split(r"\n{2,}", raw.strip())
+        entries = []
+        date_pat = re.compile(r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[\s,.-]+(\d{4})\s*[-–to]+\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|Present|Current)?[a-z]*[\s,.-]*(\d{4})?", re.I)
+        for b in blocks:
+            lines = [l.strip() for l in b.split("\n") if l.strip()]
+            if not lines: continue
+            dm = date_pat.search(b)
+            header = lines[0]
+            split = re.split(r"\s+(?:at|@|\||-)\s+", header, maxsplit=1, flags=re.I)
+            entries.append({
+                "title": split[0].strip() if split else header,
+                "company": split[1].strip() if len(split) > 1 else "",
+                "duration": dm.group(0).strip() if dm else "",
+                "description": " ".join([l for l in lines[1:] if not date_pat.search(l)]).strip()
+            })
+        return entries
+
+    def _parse_proj(raw):
+        blocks = re.split(r"\n{2,}", raw.strip())
+        entries = []
+        for b in blocks:
+            lines = [l.strip() for l in b.split("\n") if l.strip()]
+            if not lines: continue
+            tm = re.search(r"(?:Tech(?:nologies)?[:\s]+|Built\s+with[:\s]+|\()([\w\s,./+#-]+)\)?", b, re.I)
+            entries.append({
+                "name": lines[0],
+                "technologies": [t.strip() for t in tm.group(1).split(",") if t.strip()] if tm else [],
+                "description": " ".join([l for l in lines[1:] if not (tm and tm.group(0).strip() in l)]).strip()
+            })
+        return entries
 
     return {
-        "metadata":   metadata,
-        "raw_text":   raw_text,
-        "skills":     parse_skills(skills_raw)     if skills_raw     else [],
-        "experience": parse_experience(experience_raw) if experience_raw else [],
-        "projects":   parse_projects(projects_raw) if projects_raw   else [],
+        "skills": _parse_skills(skills_raw) if skills_raw else [],
+        "experience": _parse_exp(exp_raw) if exp_raw else [],
+        "projects": _parse_proj(proj_raw) if proj_raw else []
     }
 
 
-# ─── Flask-compatible endpoint helper ─────────────────────────────────────────
+# ─── Public API ───────────────────────────────────────────────────────────────
+
+def parse_resume(pdf_path: str = None, pdf_bytes: bytes = None, filename: str = "upload.pdf") -> dict:
+    """Unified entry point for parsing resumes."""
+    raw_text, metadata = extract_raw_text(pdf_path, pdf_bytes)
+    if pdf_path: metadata["file_name"] = Path(pdf_path).name
+    elif filename: metadata["file_name"] = filename
+
+    # Primary: Gemini
+    structured = None
+    if os.getenv('GEMINI_API_KEY'):
+        structured = parse_with_gemini(raw_text)
+    
+    # Fallback: Regex
+    if not structured:
+        print("[Resume Parser] Using Regex Fallback")
+        structured = parse_regex_fallback(raw_text)
+
+    return {
+        "metadata": metadata,
+        "raw_text": raw_text,
+        "skills": structured.get("skills", []),
+        "experience": structured.get("experience", []),
+        "projects": structured.get("projects", []),
+    }
 
 def parse_resume_from_bytes(pdf_bytes: bytes, filename: str = "upload.pdf") -> dict:
-    """
-    Parse a resume directly from raw bytes (e.g. from Flask request.files).
-    Avoids writing to disk by using PyMuPDF's stream interface.
-    """
-    doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
-    pages_text = [page.get_text("text") for page in doc]
-    raw_text   = "\n".join(pages_text)
-
-    metadata = {
-        "title":      doc.metadata.get("title", ""),
-        "author":     doc.metadata.get("author", ""),
-        "page_count": doc.page_count,
-        "file_name":  filename,
-    }
-    doc.close()
-
-    spans = _find_section_spans(raw_text)
-
-    def get_section(name: str) -> str:
-        if name not in spans:
-            return ""
-        start, end = spans[name]
-        return raw_text[start:end].strip()
-
-    skills_raw     = get_section("skills")
-    experience_raw = get_section("experience")
-    projects_raw   = get_section("projects")
-
-    return {
-        "metadata":   metadata,
-        "raw_text":   raw_text,
-        "skills":     parse_skills(skills_raw)         if skills_raw     else [],
-        "experience": parse_experience(experience_raw) if experience_raw else [],
-        "projects":   parse_projects(projects_raw)     if projects_raw   else [],
-    }
+    """Backward compatibility wrapper."""
+    return parse_resume(pdf_bytes=pdf_bytes, filename=filename)
 
 
 # ─── CLI entry point ──────────────────────────────────────────────────────────
@@ -345,16 +271,11 @@ if __name__ == "__main__":
 
     try:
         result = parse_resume(pdf_file)
-    except FileNotFoundError as e:
-        print(f"❌ {e}")
+        # Pretty-print JSON
+        output = {k: v for k, v in result.items() if k != "raw_text"}
+        print(json.dumps(output, indent=2, ensure_ascii=False))
+        print(f"\n{'─' * 50}")
+        print(f"✅ Skills: {len(result['skills'])} | Exp: {len(result['experience'])} | Proj: {len(result['projects'])}")
+    except Exception as e:
+        print(f"❌ Error: {e}")
         sys.exit(1)
-
-    # Pretty-print JSON output (exclude raw_text for readability)
-    output = {k: v for k, v in result.items() if k != "raw_text"}
-    print(json.dumps(output, indent=2, ensure_ascii=False))
-
-    print(f"\n{'─' * 50}")
-    print(f"✅ Pages parsed : {result['metadata']['page_count']}")
-    print(f"✅ Skills found : {len(result['skills'])}")
-    print(f"✅ Experience   : {len(result['experience'])} entries")
-    print(f"✅ Projects     : {len(result['projects'])} entries")

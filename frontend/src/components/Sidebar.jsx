@@ -1,31 +1,32 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import {
     LayoutDashboard, ClipboardList, TrendingUp, BarChart2,
-    Briefcase, Map, LogOut, ChevronLeft, ChevronRight, Zap
+    Briefcase, Map, LogOut, ChevronLeft, ChevronRight, Zap, FileText
 } from 'lucide-react';
 
 const NAV_ITEMS = [
     {
         section: 'Main', items: [
-            { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+            { label: 'Overview', icon: LayoutDashboard },
         ]
     },
     {
         section: 'Modules', items: [
-            { to: '/assessment', icon: ClipboardList, label: 'Assessment' },
-            { to: '/skill-gap', icon: TrendingUp, label: 'Skill Gap' },
-            { to: '/swot', icon: BarChart2, label: 'SWOT Analysis' },
-            { to: '/career-matching', icon: Briefcase, label: 'Career Matching' },
-            { to: '/roadmap', icon: Map, label: 'Roadmap' },
+            { label: 'Resume Info', icon: FileText },
+            { label: 'Assessment', icon: ClipboardList },
+            { label: 'Skill Gap', icon: TrendingUp },
+            { label: 'SWOT Analysis', icon: BarChart2 },
+            { label: 'Career Match', icon: Briefcase },
+            { label: 'Roadmap', icon: Map },
         ]
     },
 ];
 
-export default function Sidebar({ collapsed, onToggle }) {
+export default function Sidebar({ collapsed, onToggle, activeTab, onTabChange }) {
     const navigate = useNavigate();
     const { user } = useAuth();
 
@@ -65,21 +66,29 @@ export default function Sidebar({ collapsed, onToggle }) {
                 {NAV_ITEMS.map((section) => (
                     <div key={section.section} style={{ marginBottom: 20 }}>
                         {!collapsed && <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(240,255,223,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 8px', marginBottom: 6 }}>{section.section}</div>}
-                        {section.items.map(({ to, icon: Icon, label }) => (
-                            <NavLink key={to} to={to} style={({ isActive }) => ({
-                                display: 'flex', alignItems: 'center', gap: 10,
-                                padding: collapsed ? '10px 16px' : '9px 12px',
-                                borderRadius: 8, marginBottom: 2, textDecoration: 'none',
-                                background: isActive ? 'rgba(35,114,39,0.25)' : 'transparent',
-                                color: isActive ? '#4ade80' : 'rgba(240,255,223,0.65)',
-                                fontWeight: isActive ? 600 : 400, fontSize: 14,
-                                transition: 'all 0.15s',
-                                justifyContent: collapsed ? 'center' : 'flex-start',
-                            })} title={collapsed ? label : undefined}>
-                                <Icon size={17} style={{ flexShrink: 0 }} />
-                                {!collapsed && <span style={{ whiteSpace: 'nowrap' }}>{label}</span>}
-                            </NavLink>
-                        ))}
+                        {section.items.map(({ label, icon: Icon }) => {
+                            const isActive = activeTab === label;
+                            return (
+                                <button
+                                    key={label}
+                                    onClick={() => onTabChange(label)}
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: 10,
+                                        padding: collapsed ? '10px 16px' : '9px 12px',
+                                        borderRadius: 8, marginBottom: 2, border: 'none',
+                                        width: '100%', cursor: 'pointer',
+                                        background: isActive ? 'rgba(35,114,39,0.25)' : 'transparent',
+                                        color: isActive ? '#4ade80' : 'rgba(240,255,223,0.65)',
+                                        fontWeight: isActive ? 600 : 400, fontSize: 14,
+                                        transition: 'all 0.15s',
+                                        justifyContent: collapsed ? 'center' : 'flex-start',
+                                    }} title={collapsed ? label : undefined}
+                                >
+                                    <Icon size={17} style={{ flexShrink: 0 }} />
+                                    {!collapsed && <span style={{ whiteSpace: 'nowrap' }}>{label}</span>}
+                                </button>
+                            );
+                        })}
                     </div>
                 ))}
             </nav>

@@ -1001,7 +1001,12 @@ export default function Dashboard() {
 
     return (
         <div style={s.page}>
-            <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
+            <Sidebar
+                collapsed={collapsed}
+                onToggle={() => setCollapsed(!collapsed)}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+            />
 
             <main style={s.main}>
                 {/* Page header */}
