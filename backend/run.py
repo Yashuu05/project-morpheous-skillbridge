@@ -430,6 +430,159 @@ def drop_db():
 # ----------------------------------------
 
 # ----------------------------------------
+# Roadmap Generation Route (Gemini)
+# ----------------------------------------
+@app.route('/api/roadmap/generate', methods=['POST', 'OPTIONS'])
+def roadmap_generate():
+    """
+    POST /api/roadmap/generate
+    Body: {
+      "role":        "data scientist",
+      "match_pct":   82.3,
+      "profile":     { name, domain, skills, interests, education, university, year },
+      "test_scores": { "python": 0.67, ... },
+      "skill_results": { "python": { gap:0.23, status:"moderate", user_score:0.67, required:0.9 } },
+      "totals":      { readiness:69, total_gap:0.31 },
+      "swot":        { strengths:[...], weaknesses:[...], opportunities:[...], threats:[...] }
+    }
+    Returns structured roadmap JSON.
+    """
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    api_key = os.getenv('GEMINI_API_KEY', '')
+    if not api_key or api_key == 'your-gemini-api-key-here':
+        return jsonify({'error': 'GEMINI_API_KEY not configured in backend/.env'}), 503
+
+    body         = request.get_json(force=True) or {}
+    role         = body.get('role', 'unknown')
+    match_pct    = body.get('match_pct', 0)
+    profile      = body.get('profile', {})
+    test_scores  = body.get('test_scores', {})
+    skill_results= body.get('skill_results', {})
+    totals       = body.get('totals', {})
+    swot         = body.get('swot', {})
+
+    # Build skill gap lines
+    skill_lines = []
+    for skill, info in skill_results.items():
+        u = round(info.get('user_score', 0) * 100)
+        r = round(info.get('required', 0) * 100)
+        g = round(info.get('gap', 0) * 100)
+        st = info.get('status', '')
+        skill_lines.append(f"  - {skill.title()}: scored {u}% | required {r}% | gap {g}% | {st}")
+
+    # Build test score lines (fallback)
+    test_lines = []
+    for skill, sc in test_scores.items():
+        test_lines.append(f"  - {skill.title()}: {round(float(sc)*100)}%")
+
+    # Build SWOT summary
+    swot_str = ''
+    for key in ['strengths', 'weaknesses', 'opportunities', 'threats']:
+        items = swot.get(key, [])
+        if items:
+            titles = [i.get('title', i) if isinstance(i, dict) else str(i) for i in items]
+            swot_str += f"\n{key.upper()}: {', '.join(titles)}"
+
+    # Load JobInfo
+    job_info_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'JobInfo.json'
+    )
+    job_context = ''
+    try:
+        with open(job_info_file, 'r', encoding='utf-8') as f:
+            job_data = json.load(f)
+        matched_job = next(
+            (r for r in job_data.get('roles', [])
+             if r['title'].lower().replace(' ', '') == role.lower().replace(' ', '')),
+            None
+        )
+        if matched_job:
+            job_context = (
+                f"\nRole Description: {matched_job['description']}\n"
+                f"Core Industry Skills: {', '.join(matched_job['core_skills'])}\n"
+            )
+    except Exception:
+        pass
+
+    context = f"""
+Student Profile:
+- Name:            {profile.get('name', 'Student')}
+- Target Role:     {role}
+- Career Match:    {match_pct}%
+- Domain:          {profile.get('domain', '')}
+- Skills Listed:   {', '.join(profile.get('skills', [])) or 'not specified'}
+- Interests:       {', '.join(profile.get('interests', [])) or 'not specified'}
+- Education:       {profile.get('education', 'not specified')}
+- University:      {profile.get('university', 'not specified')}
+- Year of Study:   {profile.get('currentYear', 'not specified')}
+- Career Readiness:{totals.get('readiness', 'N/A')}%
+
+Skill Gap Analysis:
+{chr(10).join(skill_lines) or chr(10).join(test_lines) or '  (No assessment taken yet)'}
+
+SWOT Summary:{swot_str or ' Not available'}
+
+{job_context}
+"""
+
+    SYSTEM_PROMPT = (
+        "You are a career guide and counsellor whose aim is to guide and show direction to computer and IT college students. "
+        "You are given student information, test scores, skill gap scores, and career matching percentage. "
+        "On the basis of given inputs, provide the student a clear and structured roadmap to overcome weaknesses and become "
+        "a professional in the desired career. Include industry-recognized projects and resources used in the recommended role. "
+        "Note: Never generate fake or incorrect roadmaps."
+    )
+
+    prompt = (
+        f"Generate a detailed career roadmap for a student targeting the role of '{role}'.\n\n"
+        "Return ONLY valid JSON in EXACTLY this structure, no markdown, no extra text:\n"
+        "{\n"
+        '  "role": "...",\n'
+        '  "summary": "2-3 sentence personalised roadmap overview",\n'
+        '  "total_duration": "e.g. 6–12 months",\n'
+        '  "phases": [\n'
+        '    {\n'
+        '      "phase_number": 1,\n'
+        '      "title": "Phase title (e.g. Foundation — Month 1-2)",\n'
+        '      "duration": "e.g. 1-2 months",\n'
+        '      "goals": ["goal1", "goal2"],\n'
+        '      "skills_to_learn": ["skill1", "skill2"],\n'
+        '      "projects": [{"name": "Project name", "description": "1-2 sentences", "tech_stack": ["tech1"]}],\n'
+        '      "resources": [{"title": "Resource name", "type": "book|course|docs|youtube|tool", "url_or_platform": "e.g. Coursera, YouTube, docs.python.org"}]\n'
+        '    }\n'
+        '  ],\n'
+        '  "final_milestones": ["milestone1", "milestone2"],\n'
+        '  "job_ready_checklist": ["item1", "item2"]\n'
+        "}\n\n"
+        "Include 4 phases. Each phase should have 2-3 projects and 3-4 resources. Be specific and actionable."
+    )
+
+    try:
+        client   = genai.Client(api_key=api_key)
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
+            contents=context + '\n\n' + prompt,
+        )
+        raw = response.text.strip()
+        if raw.startswith('```'):
+            raw = raw.split('```')[1]
+            if raw.startswith('json'):
+                raw = raw[4:]
+            raw = raw.strip()
+        roadmap = json.loads(raw)
+        return jsonify(roadmap), 200
+
+    except json.JSONDecodeError:
+        return jsonify({'error': 'Gemini returned non-JSON response.', 'raw': raw[:500]}), 502
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return jsonify({'error': str(e), 'type': type(e).__name__}), 500
+
+
+# ----------------------------------------
 # Career Matching Route
 # ----------------------------------------
 @app.route('/api/career/match', methods=['POST', 'OPTIONS'])
