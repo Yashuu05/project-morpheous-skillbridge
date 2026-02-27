@@ -49,10 +49,265 @@ const ASSESSMENTS = [
 ];
 
 const STATUS_COLOR = { pass: '#4ade80', fail: '#f87171', pending: '#fbbf24' };
-const TABS = ['Overview', 'Resume Info'];
+const TABS = ['Overview', 'Resume Info', 'Assessment'];
 
 
-// ─── Resume Info Tab Component ─────────────────────────────────────────────────
+// ─── Domain detection helper ─────────────────────────────────────────────────
+const DOMAIN_MAP = [
+    ['web development', 'web development'], ['web developer', 'web development'],
+    ['frontend', 'web development'], ['full stack', 'web development'],
+    ['data science', 'data science'], ['data scientist', 'data science'],
+    ['machine learning', 'data science'], ['ai engineer', 'ai engineer'],
+    ['artificial intelligence', 'ai engineer'], ['software engineer', 'software engineering'],
+    ['software engineering', 'software engineering'], ['data analyst', 'data analyst'],
+    ['business analyst', 'data analyst'],
+];
+function detectDomain(interests = []) {
+    for (const interest of (interests || [])) {
+        const low = interest.toLowerCase();
+        for (const [key, val] of DOMAIN_MAP) {
+            if (low.includes(key) || key.includes(low)) return val;
+        }
+    }
+    return 'web development';
+}
+
+// ─── Assessment Tab ───────────────────────────────────────────────────────────
+function AssessmentTab({ user }) {
+    const [testState, setTestState] = useState('idle'); // idle|loading|testing|results
+    const [questions, setQuestions] = useState([]);
+    const [current, setCurrent] = useState(0);
+    const [answers, setAnswers] = useState({});   // { [qIndex]: selectedOption }
+    const [results, setResults] = useState(null); // { scores:{}, total_score, savedOk }
+    const [error, setError] = useState('');
+
+    const domain = detectDomain(user?.interests);
+    const skills = (user?.skills || []).join(',');
+    const uid = user?.uid;
+
+    // ── Fetch questions from backend ──────────────────────────────────────────
+    const startTest = async () => {
+        setTestState('loading'); setError('');
+        try {
+            const url = `/api/mcq/user-test?domain=${encodeURIComponent(domain)}&skills=${encodeURIComponent(skills)}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            if (!res.ok) { setError(data.error || 'Failed to load questions.'); setTestState('idle'); return; }
+            if (!data.length) { setError('No questions found for your profile.'); setTestState('idle'); return; }
+            setQuestions(data); setCurrent(0); setAnswers({}); setResults(null);
+            setTestState('testing');
+        } catch (e) { setError(`Network error: ${e.message}`); setTestState('idle'); }
+    };
+
+    // ── Submit and calculate scores ───────────────────────────────────────────
+    const submitTest = async () => {
+        // per-skill score
+        const bySkill = {};
+        questions.forEach((q, i) => {
+            const sk = q.skill;
+            if (!bySkill[sk]) bySkill[sk] = { correct: 0, total: 0 };
+            bySkill[sk].total++;
+            if (answers[i] === q.answer) bySkill[sk].correct++;
+        });
+        const scores = {};
+        for (const [sk, d] of Object.entries(bySkill))
+            scores[sk] = parseFloat((d.correct / d.total).toFixed(2));
+        const vals = Object.values(scores);
+        const total_score = parseFloat((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2));
+
+        // save to Firestore
+        let savedOk = false;
+        if (uid) {
+            try {
+                await setDoc(doc(db, 'test_scores', uid), {
+                    uid, domain, scores, total_score, completedAt: serverTimestamp(),
+                }, { merge: true });
+                savedOk = true;
+            } catch (e) { console.warn('Firestore save failed', e); }
+        }
+        setResults({ scores, total_score, savedOk });
+        setTestState('results');
+    };
+
+    // ─── IDLE ─────────────────────────────────────────────────────────────────
+    if (testState === 'idle') return (
+        <div style={{ maxWidth: 620, margin: '0 auto', padding: 24 }}>
+            {error && <div style={{ background: 'rgba(248,113,113,0.15)', border: '1px solid #f87171', borderRadius: 10, padding: '12px 16px', marginBottom: 16, color: '#f87171', fontSize: 14 }}>{error}</div>}
+            <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: 32, textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <ClipboardList size={48} color='#3b82f6' style={{ marginBottom: 16 }} />
+                <h2 style={{ color: '#f0ffdf', fontSize: 22, marginBottom: 8 }}>Skill Assessment</h2>
+                <p style={{ color: 'rgba(240,255,223,0.6)', marginBottom: 16, fontSize: 14 }}>
+                    Domain: <strong style={{ color: '#60a5fa' }}>{domain}</strong>
+                </p>
+                {user?.skills?.length > 0 && (
+                    <p style={{ color: 'rgba(240,255,223,0.5)', fontSize: 13, marginBottom: 24 }}>
+                        Testing skills: {user.skills.slice(0, 6).join(' · ')}
+                    </p>
+                )}
+                <p style={{ color: 'rgba(240,255,223,0.55)', fontSize: 13, marginBottom: 28 }}>
+                    3 questions per skill · Multiple choice · Instant scoring
+                </p>
+                <button onClick={startTest} style={{ background: 'linear-gradient(135deg,#3b82f6,#6366f1)', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 32px', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>
+                    Start Assessment
+                </button>
+            </div>
+        </div>
+    );
+
+    // ─── LOADING ──────────────────────────────────────────────────────────────
+    if (testState === 'loading') return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 320, gap: 16 }}>
+            <Loader2 size={40} color='#3b82f6' style={{ animation: 'spin 1s linear infinite' }} />
+            <p style={{ color: 'rgba(240,255,223,0.7)' }}>Loading your personalized questions…</p>
+        </div>
+    );
+
+    // ─── TESTING ──────────────────────────────────────────────────────────────
+    if (testState === 'testing') {
+        const q = questions[current];
+        const total = questions.length;
+        const pct = Math.round(((current + 1) / total) * 100);
+        const picked = answers[current];
+        const isLast = current === total - 1;
+        const answeredCount = Object.keys(answers).length;
+
+        const optionStyle = (opt) => {
+            const base = { display: 'block', width: '100%', textAlign: 'left', padding: '12px 16px', borderRadius: 10, marginBottom: 10, fontSize: 14, cursor: 'pointer', border: '1px solid', fontWeight: 500, transition: 'all 0.2s' };
+            if (picked === opt) return { ...base, background: 'rgba(59,130,246,0.25)', borderColor: '#3b82f6', color: '#93c5fd' };
+            return { ...base, background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.1)', color: 'rgba(240,255,223,0.8)' };
+        };
+
+        return (
+            <div style={{ maxWidth: 680, margin: '0 auto', padding: '24px 16px' }}>
+                {/* Progress bar */}
+                <div style={{ marginBottom: 20 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'rgba(240,255,223,0.6)' }}>
+                        <span>Question {current + 1} of {total}</span>
+                        <span style={{ color: '#60a5fa' }}>{answeredCount}/{total} answered</span>
+                    </div>
+                    <div style={{ height: 6, borderRadius: 99, background: 'rgba(59,130,246,0.12)', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${pct}%`, background: 'linear-gradient(90deg,#3b82f6,#6366f1)', borderRadius: 99, transition: 'width 0.4s ease' }} />
+                    </div>
+                </div>
+
+                {/* Skill badge */}
+                <span style={{ fontSize: 11, background: 'rgba(99,102,241,0.18)', color: '#a5b4fc', padding: '3px 10px', borderRadius: 99, border: '1px solid rgba(99,102,241,0.3)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>{q.skill}</span>
+
+                {/* Question */}
+                <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 24, margin: '16px 0 20px' }}>
+                    <p style={{ color: '#f0ffdf', fontSize: 16, lineHeight: 1.6, fontWeight: 500 }}>
+                        <span style={{ color: 'rgba(240,255,223,0.4)', marginRight: 8 }}>Q{current + 1}.</span>{q.question}
+                    </p>
+                </div>
+
+                {/* Options */}
+                {q.options.map((opt, i) => (
+                    <button key={i} onClick={() => setAnswers(a => ({ ...a, [current]: opt }))} style={optionStyle(opt)}>
+                        <span style={{ color: 'rgba(240,255,223,0.4)', marginRight: 10 }}>{String.fromCharCode(65 + i)}.</span>{opt}
+                    </button>
+                ))}
+
+                {/* Navigation */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24, gap: 12 }}>
+                    <button onClick={() => setCurrent(c => Math.max(0, c - 1))} disabled={current === 0}
+                        style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: '1px solid rgba(255,255,255,0.15)', background: 'transparent', color: current === 0 ? 'rgba(240,255,223,0.25)' : 'rgba(240,255,223,0.8)', cursor: current === 0 ? 'not-allowed' : 'pointer', fontSize: 14, fontWeight: 600 }}>
+                        ← Previous
+                    </button>
+                    {!isLast ? (
+                        <button onClick={() => setCurrent(c => Math.min(total - 1, c + 1))}
+                            style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg,#3b82f6,#6366f1)', color: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
+                            Next →
+                        </button>
+                    ) : (
+                        <button onClick={submitTest}
+                            style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 700 }}>
+                            ✓ Submit Test
+                        </button>
+                    )}
+                </div>
+
+                {/* Dot indicators */}
+                <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 6, marginTop: 20 }}>
+                    {questions.map((_, i) => (
+                        <button key={i} onClick={() => setCurrent(i)} style={{
+                            width: 10, height: 10, borderRadius: '50%', border: 'none', cursor: 'pointer',
+                            background: i === current ? '#3b82f6' : answers[i] ? '#4ade80' : 'rgba(255,255,255,0.15)'
+                        }} />
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
+    // ─── RESULTS ──────────────────────────────────────────────────────────────
+    if (testState === 'results' && results) {
+        const { scores, total_score, savedOk } = results;
+        const pct = Math.round(total_score * 100);
+        const grade = pct >= 70 ? { label: 'Excellent', color: '#4ade80' } : pct >= 45 ? { label: 'Good', color: '#fbbf24' } : { label: 'Needs Work', color: '#f87171' };
+
+        // rebuild per-question color coding
+        const getAnswerColor = (qIdx) => {
+            const ans = answers[qIdx];
+            if (!ans) return 'rgba(255,255,255,0.12)'; // unanswered
+            return ans === questions[qIdx].answer ? '#4ade80' : '#f87171';
+        };
+
+        return (
+            <div style={{ maxWidth: 680, margin: '0 auto', padding: '24px 16px' }}>
+                {/* Score card */}
+                <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 28, textAlign: 'center', marginBottom: 24 }}>
+                    <div style={{ fontSize: 56, fontWeight: 800, color: grade.color }}>{pct}%</div>
+                    <div style={{ fontSize: 18, color: grade.color, fontWeight: 600, marginBottom: 6 }}>{grade.label}</div>
+                    <div style={{ color: 'rgba(240,255,223,0.55)', fontSize: 13 }}>Total Score (average across all skills)</div>
+                    {savedOk && <div style={{ marginTop: 12, fontSize: 12, color: '#4ade80' }}>✓ Score saved to your profile</div>}
+                </div>
+
+                {/* Per-skill breakdown */}
+                <h3 style={{ color: '#f0ffdf', fontSize: 15, fontWeight: 600, marginBottom: 16 }}>Breakdown by Skill</h3>
+                {Object.entries(scores).map(([skill, score]) => {
+                    const sp = Math.round(score * 100);
+                    const sc = sp >= 70 ? '#4ade80' : sp >= 40 ? '#fbbf24' : '#f87171';
+                    return (
+                        <div key={skill} style={{ marginBottom: 14 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+                                <span style={{ fontSize: 13, color: 'rgba(240,255,223,0.8)', textTransform: 'capitalize' }}>{skill}</span>
+                                <span style={{ fontSize: 13, fontWeight: 700, color: sc }}>{sp}%</span>
+                            </div>
+                            <div style={{ height: 6, borderRadius: 99, background: 'rgba(255,255,255,0.07)', overflow: 'hidden' }}>
+                                <div style={{ height: '100%', width: `${sp}%`, background: sc, borderRadius: 99, transition: 'width 0.6s ease' }} />
+                            </div>
+                        </div>
+                    );
+                })}
+
+                {/* Answer review dots */}
+                <h3 style={{ color: '#f0ffdf', fontSize: 15, fontWeight: 600, margin: '24px 0 12px' }}>Answer Review</h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
+                    {questions.map((_, i) => (
+                        <div key={i} title={`Q${i + 1}: ${answers[i] ? (answers[i] === questions[i].answer ? 'Correct' : 'Wrong') : 'Unanswered'}`}
+                            style={{ width: 32, height: 32, borderRadius: 8, background: getAnswerColor(i), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0f1a0f', cursor: 'default' }}>
+                            {i + 1}
+                        </div>
+                    ))}
+                </div>
+                <div style={{ display: 'flex', gap: 12, fontSize: 12, color: 'rgba(240,255,223,0.5)', marginBottom: 28 }}>
+                    <span><span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 2, background: '#4ade80', marginRight: 4 }} />Correct</span>
+                    <span><span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 2, background: '#f87171', marginRight: 4 }} />Wrong</span>
+                    <span><span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 2, background: 'rgba(255,255,255,0.12)', marginRight: 4 }} />Unanswered</span>
+                </div>
+
+                {/* Retake */}
+                <button onClick={() => { setTestState('idle'); setResults(null); setAnswers({}); setCurrent(0); }}
+                    style={{ width: '100%', padding: '13px 0', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg,#3b82f6,#6366f1)', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                    Retake Assessment
+                </button>
+            </div>
+        );
+    }
+    return null;
+}
+
+
 function ResumeInfoTab({ uid, userName }) {
     const fileInputRef = useRef(null);
     const [dragging, setDragging] = useState(false);
@@ -478,6 +733,11 @@ export default function Dashboard() {
                 {/* ── Resume Info tab ── */}
                 {activeTab === 'Resume Info' && (
                     <ResumeInfoTab uid={user?.uid} userName={user?.fullName || user?.username || ''} />
+                )}
+
+                {/* ── Assessment tab ── */}
+                {activeTab === 'Assessment' && (
+                    <AssessmentTab user={user} />
                 )}
             </main>
         </div>

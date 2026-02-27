@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import os
 from datetime import timedelta
 import random
+import json
 
 # Load environment variables
 load_dotenv()
@@ -99,6 +100,98 @@ def get_mcq_questions():
         })
 
     return jsonify(shuffled_questions), 200
+
+
+# ----------------------------------------
+# Personalized MCQ Test Route
+# ----------------------------------------
+@app.route('/api/mcq/user-test', methods=['GET', 'OPTIONS'])
+def get_user_test():
+    """
+    GET /api/mcq/user-test?domain=data+science&skills=python,pandas,sql
+    Returns 3 questions per matched skill from the domain JSON file.
+    """
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    domain  = request.args.get('domain', '').lower().strip()
+    skills_param = request.args.get('skills', '')
+    skills  = [s.strip().lower() for s in skills_param.split(',') if s.strip()]
+
+    # Map domain/interest name → JSON filename
+    DOMAIN_FILES = {
+        'web development':    'WebDevelopment.json',
+        'web developer':      'WebDevelopment.json',
+        'frontend':           'WebDevelopment.json',
+        'full-stack':         'WebDevelopment.json',
+        'full stack':         'WebDevelopment.json',
+        'data science':       'DataScience.json',
+        'data scientist':     'DataScience.json',
+        'machine learning':   'DataScience.json',
+        'ai engineer':        'AIEngineer.json',
+        'ai engineering':     'AIEngineer.json',
+        'artificial intelligence': 'AIEngineer.json',
+        'software engineer':  'SoftwareEngineering.json',
+        'software engineering': 'SoftwareEngineering.json',
+        'data analyst':       'DataAnalyst.json',
+        'business analyst':   'DataAnalyst.json',
+    }
+
+    filename = DOMAIN_FILES.get(domain)
+    if not filename:
+        for key, val in DOMAIN_FILES.items():
+            if key in domain or domain in key:
+                filename = val
+                break
+    if not filename:
+        filename = 'WebDevelopment.json'  # sensible default
+
+    data_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), '..', 'data', filename
+    )
+
+    try:
+        with open(data_file, 'r', encoding='utf-8') as f:
+            all_questions = json.load(f)
+    except FileNotFoundError:
+        return jsonify({'error': f'Question bank not found: {filename}'}), 404
+    except json.JSONDecodeError as e:
+        return jsonify({'error': f'Malformed JSON in {filename}: {str(e)}'}), 500
+
+    # Group questions by skill (handle both 'language' and 'skill' field)
+    by_skill = {}
+    for q in all_questions:
+        skill_key = q.get('language', q.get('skill', 'general')).lower()
+        by_skill.setdefault(skill_key, []).append(q)
+
+    # Match user skills to available skill groups (substring matching)
+    if skills:
+        matched = []
+        for user_skill in skills:
+            for bank_skill in by_skill:
+                if user_skill in bank_skill or bank_skill in user_skill:
+                    if bank_skill not in matched:
+                        matched.append(bank_skill)
+        if not matched:
+            matched = list(by_skill.keys())[:5]
+    else:
+        matched = list(by_skill.keys())
+
+    # Pick 3 questions per matched skill (easy → medium → advanced preference)
+    result = []
+    for skill in matched:
+        pool = by_skill[skill].copy()
+        random.shuffle(pool)
+        for q in pool[:3]:
+            result.append({
+                'skill':      q.get('language', q.get('skill', skill)),
+                'difficulty': q.get('difficulty', 'medium'),
+                'question':   q['question'],
+                'options':    q['options'],
+                'answer':     q.get('answer', q.get('correct_answer', '')),
+            })
+
+    return jsonify(result), 200
 
 
 # ----------------------------------------
