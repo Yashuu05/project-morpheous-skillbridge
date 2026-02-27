@@ -79,5 +79,168 @@
     "question": "What reduces misinterpretation of dashboards?",
     "options": ["Multiple chart types", "Standardized definitions", "Color overload", "Hidden filters"],
     "answer": "Standardized definitions"
+  },
+   {
+    "domain": "Data Analyst",
+    "skill": "SQL & Database Querying",
+    "difficulty": "easy",
+    "question": "You need to retrieve all customers who made purchases above $10,000 in the last quarter. Which SQL clause is primarily used to filter records?",
+    "options": ["GROUP BY", "HAVING", "WHERE", "ORDER BY"],
+    "answer": "WHERE"
+  },
+  {
+    "domain": "Data Analyst",
+    "skill": "SQL & Database Querying",
+    "difficulty": "medium",
+    "question": "Which SQL technique is best suited for identifying duplicate transaction records in a financial dataset?",
+    "options": ["DISTINCT", "INNER JOIN", "GROUP BY with HAVING COUNT(*) > 1", "UNION"],
+    "answer": "GROUP BY with HAVING COUNT(*) > 1"
+  },
+  {
+    "domain": "Data Analyst",
+    "skill": "SQL & Database Querying",
+    "difficulty": "advanced",
+    "question": "A query involving multiple joins is slow on a 50M row table. What is the most effective optimization strategy?",
+    "options": ["Add comments", "Increase RAM manually", "Create appropriate indexes", "Use SELECT *"],
+    "answer": "Create appropriate indexes"
+  },
+  {
+    "domain": "Data Analyst",
+    "skill": "SQL & Database Querying",
+    "difficulty": "advanced",
+    "question": "Which window function would you use to rank sales representatives by monthly revenue without skipping ranks?",
+    "options": ["ROW_NUMBER()", "RANK()", "DENSE_RANK()", "NTILE()"],
+    "answer": "DENSE_RANK()"
+  },
+  {
+    "domain": "Data Analyst",
+    "skill": "SQL & Database Querying",
+    "difficulty": "medium",
+    "question": "You need to calculate a running total of daily revenue. Which SQL feature is most appropriate?",
+    "options": ["Aggregate Function", "Window Function with OVER()", "Subquery", "Temporary Table"],
+    "answer": "Window Function with OVER()"
+  },
+
+  {
+    "domain": "Data Analyst",
+    "skill": "Data Visualization (Power BI / Tableau)",
+    "difficulty": "easy",
+    "question": "Which chart type is most appropriate for showing revenue trend over 12 months?",
+    "options": ["Pie Chart", "Line Chart", "Histogram", "Scatter Plot"],
+    "answer": "Line Chart"
+  },
+  {
+    "domain": "Data Analyst",
+    "skill": "Data Visualization (Power BI / Tableau)",
+    "difficulty": "medium",
+    "question": "In Power BI, what is the primary purpose of DAX?",
+    "options": ["Design UI", "Data modeling and calculated measures", "Server configuration", "API integration"],
+    "answer": "Data modeling and calculated measures"
+  },
+  {
+    "domain": "Data Analyst",
+    "skill": "Data Visualization (Power BI / Tableau)",
+    "difficulty": "advanced",
+    "question": "A dashboard loads slowly due to high-cardinality columns. What is the best optimization strategy?",
+    "options": ["Add more visuals", "Reduce data granularity", "Duplicate dataset", "Increase font size"],
+    "answer": "Reduce data granularity"
+  },
+  {
+    "domain": "Data Analyst",
+    "skill": "Data Visualization (Power BI / Tableau)",
+    "difficulty": "advanced",
+    "question": "Which approach ensures secure row-level data access for different managers?",
+    "options": ["Filter pane", "Row-Level Security (RLS)", "Bookmarks", "Tooltips"],
+    "answer": "Row-Level Security (RLS)"
+  },
+  {
+    "domain": "Data Analyst",
+    "skill": "Data Visualization (Power BI / Tableau)",
+    "difficulty": "medium",
+    "question": "What is the best way to highlight KPIs exceeding targets in a dashboard?",
+    "options": ["Conditional Formatting", "Manual Comments", "Sorting", "Static Text"],
+    "answer": "Conditional Formatting"
+  },
+
+  {
+    "domain": "Data Analyst",
+    "skill": "Statistics & Hypothesis Testing",
+    "difficulty": "easy",
+    "question": "Which statistical test is commonly used to compare means of two groups?",
+    "options": ["Chi-square", "t-test", "ANOVA", "Regression"],
+    "answer": "t-test"
+  },
+  {
+    "domain": "Data Analyst",
+    "skill": "Statistics & Hypothesis Testing",
+    "difficulty": "medium",
+    "question": "When comparing conversion rates between two website versions, which test is appropriate?",
+    "options": ["Z-test for proportions", "Linear regression", "Correlation test", "Median test"],
+    "answer": "Z-test for proportions"
+  },
+  {
+    "domain": "Data Analyst",
+    "skill": "Statistics & Hypothesis Testing",
+    "difficulty": "advanced",
+    "question": "If p-value < 0.05, what does it imply in hypothesis testing?",
+    "options": ["Accept null hypothesis", "Reject null hypothesis", "Data is invalid", "Test failed"],
+    "answer": "Reject null hypothesis"
+  },
+  {
+    "domain": "Data Analyst",
+    "skill": "Statistics & Hypothesis Testing",
+    "difficulty": "advanced",
+    "question": "Which assumption must be validated before performing ANOVA?",
+    "options": ["Normality & Homogeneity of variance", "Linear separability", "Binary output", "Large dataset"],
+    "answer": "Normality & Homogeneity of variance"
+  },
+  {
+    "domain": "Data Analyst",
+    "skill": "Statistics & Hypothesis Testing",
+    "difficulty": "medium",
+    "question": "Which metric is used to measure strength of linear relationship between two variables?",
+    "options": ["Standard deviation", "Correlation coefficient", "p-value", "Mean difference"],
+    "answer": "Correlation coefficient"
+  },
+
+  {
+    "domain": "Data Analyst",
+    "skill": "Business Communication",
+    "difficulty": "easy",
+    "question": "When presenting dashboard insights to executives, what is most important?",
+    "options": ["Technical jargon", "Clear business impact explanation", "Code snippets", "Database schema"],
+    "answer": "Clear business impact explanation"
+  },
+  {
+    "domain": "Data Analyst",
+    "skill": "Business Communication",
+    "difficulty": "medium",
+    "question": "A stakeholder misinterprets your data visualization. What should you do?",
+    "options": ["Ignore it", "Blame data team", "Clarify with simplified explanation", "Remove dashboard"],
+    "answer": "Clarify with simplified explanation"
+  },
+  {
+    "domain": "Data Analyst",
+    "skill": "Business Communication",
+    "difficulty": "advanced",
+    "question": "During a high-stakes board meeting, executives question your analysis methodology. What is the best response?",
+    "options": ["Defensive reply", "Blame assumptions", "Confidently explain logic & limitations", "Change topic"],
+    "answer": "Confidently explain logic & limitations"
+  },
+  {
+    "domain": "Data Analyst",
+    "skill": "Business Communication",
+    "difficulty": "advanced",
+    "question": "Which approach ensures alignment between analytics team and product team?",
+    "options": ["Weekly alignment meetings", "Separate tools", "No documentation", "Ad-hoc chats only"],
+    "answer": "Weekly alignment meetings"
+  },
+  {
+    "domain": "Data Analyst",
+    "skill": "Business Communication",
+    "difficulty": "medium",
+    "question": "Which technique improves data storytelling effectiveness?",
+    "options": ["Adding more tables", "Using narrative context with visuals", "Showing raw SQL", "Long reports"],
+    "answer": "Using narrative context with visuals"
   }
 ]

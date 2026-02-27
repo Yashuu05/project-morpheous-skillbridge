@@ -79,5 +79,206 @@
     "question": "Which orchestration tool is commonly used to manage containerized ML workloads at scale?",
     "options": ["Kubernetes", "Notepad", "FTP", "Manual SSH"],
     "answer": "Kubernetes"
+  },
+   {
+    "domain": "AI engineer",
+    "language": "data engineering",
+    "difficulty": "easy",
+    "question": "Which format is most efficient for storing large-scale training datasets?",
+    "options": ["CSV", "TXT", "Parquet", "PDF"],
+    "answer": "Parquet"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "data engineering",
+    "difficulty": "medium",
+    "question": "Which technique ensures reproducible feature pipelines?",
+    "options": ["Manual scripts", "Feature versioning", "Random updates", "Excel exports"],
+    "answer": "Feature versioning"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "data engineering",
+    "difficulty": "medium",
+    "question": "Which system is commonly used for distributed data processing?",
+    "options": ["Spark", "Notepad", "PowerPoint", "Figma"],
+    "answer": "Spark"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "data engineering",
+    "difficulty": "advanced",
+    "question": "How can data leakage be prevented during feature engineering?",
+    "options": ["Random split after preprocessing", "Strict train-test separation before transformation", "Adding future data", "Ignoring validation"],
+    "answer": "Strict train-test separation before transformation"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "data engineering",
+    "difficulty": "advanced",
+    "question": "Which architecture supports real-time feature serving?",
+    "options": ["Static CSV files", "Feature Store", "Manual SQL export", "Offline storage only"],
+    "answer": "Feature Store"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "model deployment",
+    "difficulty": "easy",
+    "question": "Which format is commonly used to export trained deep learning models?",
+    "options": ["ONNX", "JPEG", "DOCX", "MP3"],
+    "answer": "ONNX"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "model deployment",
+    "difficulty": "medium",
+    "question": "Which technique reduces inference latency?",
+    "options": ["Model quantization", "Increase parameters", "Disable caching", "Add layers"],
+    "answer": "Model quantization"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "model deployment",
+    "difficulty": "medium",
+    "question": "Which deployment strategy minimizes production risk?",
+    "options": ["Direct overwrite", "Canary deployment", "Shutdown first", "Manual swap"],
+    "answer": "Canary deployment"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "model deployment",
+    "difficulty": "advanced",
+    "question": "How can GPU utilization be optimized in inference pipelines?",
+    "options": ["Single request mode", "Batch inference", "Disable GPU", "Manual scaling"],
+    "answer": "Batch inference"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "model deployment",
+    "difficulty": "advanced",
+    "question": "Which approach enables zero-downtime model updates?",
+    "options": ["Server restart", "Blue-Green deployment", "Manual pause", "Remove traffic"],
+    "answer": "Blue-Green deployment"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "ai security",
+    "difficulty": "easy",
+    "question": "What is adversarial attack in AI?",
+    "options": ["Database crash", "Input manipulation to fool model", "Cloud failure", "API timeout"],
+    "answer": "Input manipulation to fool model"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "ai security",
+    "difficulty": "medium",
+    "question": "Which technique mitigates model extraction attacks?",
+    "options": ["Rate limiting", "Open endpoints", "No logging", "Public API keys"],
+    "answer": "Rate limiting"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "ai security",
+    "difficulty": "medium",
+    "question": "Which practice ensures compliance with AI governance regulations?",
+    "options": ["No documentation", "Model documentation & audits", "Hardcoding", "Ignore bias"],
+    "answer": "Model documentation & audits"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "ai security",
+    "difficulty": "advanced",
+    "question": "How can sensitive training data leakage be prevented?",
+    "options": ["Open access", "Differential privacy", "Disable encryption", "Public datasets only"],
+    "answer": "Differential privacy"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "ai security",
+    "difficulty": "advanced",
+    "question": "Which framework helps manage AI fairness evaluation?",
+    "options": ["Fairlearn", "Paint", "Word", "Excel"],
+    "answer": "Fairlearn"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "cloud infrastructure",
+    "difficulty": "easy",
+    "question": "Which cloud service is commonly used for scalable ML training?",
+    "options": ["AWS SageMaker", "MS Paint", "Excel", "HTML"],
+    "answer": "AWS SageMaker"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "cloud infrastructure",
+    "difficulty": "medium",
+    "question": "Which architecture supports distributed model training?",
+    "options": ["Single CPU", "Distributed training clusters", "Manual scripts", "Local PC only"],
+    "answer": "Distributed training clusters"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "cloud infrastructure",
+    "difficulty": "medium",
+    "question": "Which service improves global inference latency?",
+    "options": ["CDN", "Local file system", "USB storage", "Manual transfer"],
+    "answer": "CDN"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "cloud infrastructure",
+    "difficulty": "advanced",
+    "question": "Which pattern improves AI system resilience?",
+    "options": ["Single zone", "Multi-region deployment", "Local execution", "Manual backup"],
+    "answer": "Multi-region deployment"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "cloud infrastructure",
+    "difficulty": "advanced",
+    "question": "Which strategy reduces cloud cost during large-scale inference?",
+    "options": ["Always-on GPU", "Auto-scaling based on load", "Manual scaling", "Disable monitoring"],
+    "answer": "Auto-scaling based on load"
+  },
+
+  {
+    "domain": "AI engineer",
+    "language": "leadership",
+    "difficulty": "easy",
+    "question": "How should an AI engineer respond to unclear business requirements?",
+    "options": ["Assume details", "Clarify with stakeholders", "Ignore", "Delay work"],
+    "answer": "Clarify with stakeholders"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "leadership",
+    "difficulty": "medium",
+    "question": "How should AI risks be communicated to executives?",
+    "options": ["Hide complexity", "Data-backed risk explanation", "Ignore", "Blame team"],
+    "answer": "Data-backed risk explanation"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "leadership",
+    "difficulty": "medium",
+    "question": "How should cross-functional conflicts be resolved?",
+    "options": ["Force decision", "Facilitate evidence-based discussion", "Ignore", "Escalate immediately"],
+    "answer": "Facilitate evidence-based discussion"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "leadership",
+    "difficulty": "advanced",
+    "question": "When production AI causes unexpected harm, what is the first responsibility?",
+    "options": ["Ignore", "Immediate mitigation & transparent reporting", "Hide logs", "Blame users"],
+    "answer": "Immediate mitigation & transparent reporting"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "leadership",
+    "difficulty": "advanced",
+    "question": "What defines strong AI ownership in enterprise projects?",
+    "options": ["Minimal involvement", "End-to-end accountability", "Delegating everything", "Avoiding risks"],
+    "answer": "End-to-end accountability"
   }
 ]

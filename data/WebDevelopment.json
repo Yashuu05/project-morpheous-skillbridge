@@ -1,287 +1,977 @@
 [
-{
-    "domain": "web development",
-    "language": "frontend",
-    "difficulty": "easy",
-    "question": "Which technique improves perceived loading performance in modern web applications?",
-    "options": ["Blocking rendering", "Skeleton screens", "Large images first", "Inline heavy scripts"],
-    "answer": "Skeleton screens"
-  },
-  {
-    "domain": "web development",
-    "language": "frontend",
-    "difficulty": "medium",
-    "question": "Which approach improves React application performance?",
-    "options": ["Frequent re-renders", "Memoization using React.memo", "Inline heavy computations", "Global state misuse"],
-    "answer": "Memoization using React.memo"
-  },
-  {
-    "domain": "web development",
-    "language": "frontend",
-    "difficulty": "advanced",
-    "question": "Which strategy reduces bundle size in enterprise-scale applications?",
-    "options": ["Adding libraries", "Tree shaking", "Duplicating code", "Inline everything"],
-    "answer": "Tree shaking"
-  },
-  {
-    "domain": "web development",
-    "language": "frontend",
-    "difficulty": "medium",
-    "question": "Which web API improves offline capability in progressive web apps?",
-    "options": ["LocalStorage only", "Service Workers", "Cookies", "SessionStorage"],
-    "answer": "Service Workers"
-  },
-  {
-    "domain": "web development",
-    "language": "frontend",
-    "difficulty": "advanced",
-    "question": "Which technique ensures accessibility compliance in enterprise apps?",
-    "options": ["Ignoring ARIA roles", "Semantic HTML and ARIA standards", "Only visual testing", "Color-only indicators"],
-    "answer": "Semantic HTML and ARIA standards"
-  },
-
-  {
-    "domain": "web development",
-    "language": "backend",
-    "difficulty": "easy",
-    "question": "Which authentication method is commonly used for stateless REST APIs?",
-    "options": ["Session cookies only", "JWT", "Hardcoded tokens", "Open access"],
-    "answer": "JWT"
-  },
-  {
-    "domain": "web development",
-    "language": "backend",
-    "difficulty": "medium",
-    "question": "Which technique prevents SQL injection attacks?",
-    "options": ["String concatenation", "Prepared statements", "Manual filtering only", "Client-side validation"],
-    "answer": "Prepared statements"
-  },
-  {
-    "domain": "web development",
-    "language": "backend",
-    "difficulty": "advanced",
-    "question": "Which caching strategy reduces database load in high-traffic systems?",
-    "options": ["Disable cache", "Redis caching layer", "Repeated DB calls", "Manual refresh"],
-    "answer": "Redis caching layer"
-  },
-  {
-    "domain": "web development",
-    "language": "backend",
-    "difficulty": "medium",
-    "question": "Which API design principle improves scalability?",
-    "options": ["Stateful services", "Stateless architecture", "Tightly coupled modules", "Hardcoded responses"],
-    "answer": "Stateless architecture"
-  },
-  {
-    "domain": "web development",
-    "language": "backend",
-    "difficulty": "advanced",
-    "question": "Which strategy ensures high availability in distributed backend systems?",
-    "options": ["Single server", "Load balancing with replication", "Manual restart", "Local database only"],
-    "answer": "Load balancing with replication"
-  },
-  {
-    "domain": "web development",
-    "language": "devops",
-    "difficulty": "easy",
-    "question": "What is the primary purpose of CI/CD in web applications?",
-    "options": ["Manual deployment", "Automated testing and deployment", "Disabling tests", "Direct production edits"],
-    "answer": "Automated testing and deployment"
-  },
-  {
-    "domain": "web development",
-    "language": "devops",
-    "difficulty": "medium",
-    "question": "Which tool is commonly used for containerizing web applications?",
-    "options": ["Docker", "Excel", "Photoshop", "Postman"],
-    "answer": "Docker"
-  },
-  {
-    "domain": "web development",
-    "language": "devops",
-    "difficulty": "medium",
-    "question": "Which practice reduces downtime during deployments?",
-    "options": ["Manual restart", "Blue-Green deployment", "Direct DB edits", "Stopping traffic"],
-    "answer": "Blue-Green deployment"
-  },
-  {
-    "domain": "web development",
-    "language": "devops",
-    "difficulty": "advanced",
-    "question": "Which orchestration tool manages containerized web services at scale?",
-    "options": ["Kubernetes", "Notepad", "FTP", "HTML"],
-    "answer": "Kubernetes"
-  },
-  {
-    "domain": "web development",
-    "language": "devops",
-    "difficulty": "advanced",
-    "question": "What is the best strategy for handling traffic spikes in production systems?",
-    "options": ["Vertical scaling only", "Auto-scaling groups", "Manual restart", "Disable logging"],
-    "answer": "Auto-scaling groups"
-  },
-
-  {
-    "domain": "web development",
-    "language": "testing",
-    "difficulty": "easy",
-    "question": "What is the purpose of unit testing?",
-    "options": ["Test UI color", "Test individual components", "Deploy app", "Increase traffic"],
-    "answer": "Test individual components"
-  },
-  {
-    "domain": "web development",
-    "language": "testing",
-    "difficulty": "medium",
-    "question": "Which testing approach validates API endpoints?",
-    "options": ["Load testing only", "Integration testing", "Manual guessing", "CSS testing"],
-    "answer": "Integration testing"
-  },
-  {
-    "domain": "web development",
-    "language": "testing",
-    "difficulty": "medium",
-    "question": "Which tool is widely used for end-to-end testing in web apps?",
-    "options": ["Cypress", "MS Paint", "Git Bash", "Figma"],
-    "answer": "Cypress"
-  },
-  {
-    "domain": "web development",
-    "language": "testing",
-    "difficulty": "advanced",
-    "question": "What ensures reliability before production deployment?",
-    "options": ["Skipping tests", "Automated regression testing", "Manual commit", "Direct merge to main"],
-    "answer": "Automated regression testing"
-  },
-  {
-    "domain": "web development",
-    "language": "testing",
-    "difficulty": "advanced",
-    "question": "Which testing type evaluates system performance under heavy traffic?",
-    "options": ["Unit testing", "Load testing", "UI testing", "Static testing"],
-    "answer": "Load testing"
-  },
-
-  {
-    "domain": "web development",
-    "language": "security",
-    "difficulty": "easy",
-    "question": "Which protocol secures data transmission over the web?",
-    "options": ["HTTP", "HTTPS", "FTP", "SMTP"],
-    "answer": "HTTPS"
-  },
-  {
-    "domain": "web development",
-    "language": "security",
-    "difficulty": "medium",
-    "question": "Which mechanism prevents cross-site scripting (XSS)?",
-    "options": ["Input sanitization", "Hardcoded passwords", "Open CORS", "Disable validation"],
-    "answer": "Input sanitization"
-  },
-  {
-    "domain": "web development",
-    "language": "security",
-    "difficulty": "medium",
-    "question": "Which strategy protects APIs from brute-force attacks?",
-    "options": ["Rate limiting", "Open access", "Disable logging", "Manual reset"],
-    "answer": "Rate limiting"
-  },
-  {
-    "domain": "web development",
-    "language": "security",
-    "difficulty": "advanced",
-    "question": "What is the most secure way to store user passwords?",
-    "options": ["Plain text", "Base64 encoding", "Hashed with bcrypt", "Local storage"],
-    "answer": "Hashed with bcrypt"
-  },
-  {
-    "domain": "web development",
-    "language": "security",
-    "difficulty": "advanced",
-    "question": "Which practice reduces attack surface in production?",
-    "options": ["Open ports", "Principle of least privilege", "Disable firewall", "Public database"],
-    "answer": "Principle of least privilege"
-  },
-
-  {
-    "domain": "web development",
-    "language": "cloud architecture",
-    "difficulty": "easy",
-    "question": "What is the main benefit of cloud hosting for web apps?",
-    "options": ["Manual scaling", "Elastic scalability", "Local-only access", "No monitoring"],
-    "answer": "Elastic scalability"
-  },
-  {
-    "domain": "web development",
-    "language": "cloud architecture",
-    "difficulty": "medium",
-    "question": "Which service improves global content delivery performance?",
-    "options": ["CDN", "FTP", "SMTP", "Local cache only"],
-    "answer": "CDN"
-  },
-  {
-    "domain": "web development",
-    "language": "cloud architecture",
-    "difficulty": "medium",
-    "question": "Which architecture pattern improves resilience?",
-    "options": ["Single region", "Multi-region deployment", "Single server", "Local database"],
-    "answer": "Multi-region deployment"
-  },
-  {
-    "domain": "web development",
-    "language": "cloud architecture",
-    "difficulty": "advanced",
-    "question": "Which pattern enables loosely coupled distributed services?",
-    "options": ["Monolith", "Event-driven architecture", "Single-thread system", "Hardcoded API"],
-    "answer": "Event-driven architecture"
-  },
-  {
-    "domain": "web development",
-    "language": "cloud architecture",
-    "difficulty": "advanced",
-    "question": "Which solution ensures high availability for databases?",
-    "options": ["Single instance", "Read replicas and failover", "Manual backup", "Disable logging"],
-    "answer": "Read replicas and failover"
-  },
-
-  {
-    "domain": "web development",
-    "language": "communication",
-    "difficulty": "easy",
-    "question": "How should a developer handle unclear requirements?",
-    "options": ["Assume details", "Seek clarification", "Ignore", "Delay project"],
-    "answer": "Seek clarification"
-  },
-  {
-    "domain": "web development",
-    "language": "communication",
-    "difficulty": "medium",
-    "question": "How should production incidents be communicated?",
-    "options": ["Hide issue", "Transparent status updates", "Blame team", "Ignore"],
-    "answer": "Transparent status updates"
-  },
-  {
-    "domain": "web development",
-    "language": "communication",
-    "difficulty": "medium",
-    "question": "What ensures alignment with cross-functional teams?",
-    "options": ["Independent coding", "Regular sprint meetings", "Avoid meetings", "Private planning"],
-    "answer": "Regular sprint meetings"
-  },
-  {
-    "domain": "web development",
-    "language": "communication",
-    "difficulty": "advanced",
-    "question": "How should a senior engineer handle architectural disagreements?",
-    "options": ["Force decision", "Data-driven discussion", "Escalate instantly", "Ignore"],
-    "answer": "Data-driven discussion"
-  },
-  {
-    "domain": "web development",
-    "language": "communication",
-    "difficulty": "advanced",
-    "question": "What builds trust during major refactoring?",
-    "options": ["Silent changes", "Clear documentation and updates", "No tests", "Random commits"],
-    "answer": "Clear documentation and updates"
-  }
+    {
+        "domain": "web development",
+        "language": "frontend",
+        "difficulty": "easy",
+        "question": "Which technique improves perceived loading performance in modern web applications?",
+        "options": [
+            "Blocking rendering",
+            "Skeleton screens",
+            "Large images first",
+            "Inline heavy scripts"
+        ],
+        "answer": "Skeleton screens"
+    },
+    {
+        "domain": "web development",
+        "language": "frontend",
+        "difficulty": "medium",
+        "question": "Which approach improves React application performance?",
+        "options": [
+            "Frequent re-renders",
+            "Memoization using React.memo",
+            "Inline heavy computations",
+            "Global state misuse"
+        ],
+        "answer": "Memoization using React.memo"
+    },
+    {
+        "domain": "web development",
+        "language": "frontend",
+        "difficulty": "advanced",
+        "question": "Which strategy reduces bundle size in enterprise-scale applications?",
+        "options": [
+            "Adding libraries",
+            "Tree shaking",
+            "Duplicating code",
+            "Inline everything"
+        ],
+        "answer": "Tree shaking"
+    },
+    {
+        "domain": "web development",
+        "language": "frontend",
+        "difficulty": "medium",
+        "question": "Which web API improves offline capability in progressive web apps?",
+        "options": [
+            "LocalStorage only",
+            "Service Workers",
+            "Cookies",
+            "SessionStorage"
+        ],
+        "answer": "Service Workers"
+    },
+    {
+        "domain": "web development",
+        "language": "frontend",
+        "difficulty": "advanced",
+        "question": "Which technique ensures accessibility compliance in enterprise apps?",
+        "options": [
+            "Ignoring ARIA roles",
+            "Semantic HTML and ARIA standards",
+            "Only visual testing",
+            "Color-only indicators"
+        ],
+        "answer": "Semantic HTML and ARIA standards"
+    },
+    {
+        "domain": "web development",
+        "language": "backend",
+        "difficulty": "easy",
+        "question": "Which authentication method is commonly used for stateless REST APIs?",
+        "options": [
+            "Session cookies only",
+            "JWT",
+            "Hardcoded tokens",
+            "Open access"
+        ],
+        "answer": "JWT"
+    },
+    {
+        "domain": "web development",
+        "language": "backend",
+        "difficulty": "medium",
+        "question": "Which technique prevents SQL injection attacks?",
+        "options": [
+            "String concatenation",
+            "Prepared statements",
+            "Manual filtering only",
+            "Client-side validation"
+        ],
+        "answer": "Prepared statements"
+    },
+    {
+        "domain": "web development",
+        "language": "backend",
+        "difficulty": "advanced",
+        "question": "Which caching strategy reduces database load in high-traffic systems?",
+        "options": [
+            "Disable cache",
+            "Redis caching layer",
+            "Repeated DB calls",
+            "Manual refresh"
+        ],
+        "answer": "Redis caching layer"
+    },
+    {
+        "domain": "web development",
+        "language": "backend",
+        "difficulty": "medium",
+        "question": "Which API design principle improves scalability?",
+        "options": [
+            "Stateful services",
+            "Stateless architecture",
+            "Tightly coupled modules",
+            "Hardcoded responses"
+        ],
+        "answer": "Stateless architecture"
+    },
+    {
+        "domain": "web development",
+        "language": "backend",
+        "difficulty": "advanced",
+        "question": "Which strategy ensures high availability in distributed backend systems?",
+        "options": [
+            "Single server",
+            "Load balancing with replication",
+            "Manual restart",
+            "Local database only"
+        ],
+        "answer": "Load balancing with replication"
+    },
+    {
+        "domain": "web development",
+        "language": "devops",
+        "difficulty": "easy",
+        "question": "What is the primary purpose of CI/CD in web applications?",
+        "options": [
+            "Manual deployment",
+            "Automated testing and deployment",
+            "Disabling tests",
+            "Direct production edits"
+        ],
+        "answer": "Automated testing and deployment"
+    },
+    {
+        "domain": "web development",
+        "language": "devops",
+        "difficulty": "medium",
+        "question": "Which tool is commonly used for containerizing web applications?",
+        "options": [
+            "Docker",
+            "Excel",
+            "Photoshop",
+            "Postman"
+        ],
+        "answer": "Docker"
+    },
+    {
+        "domain": "web development",
+        "language": "devops",
+        "difficulty": "medium",
+        "question": "Which practice reduces downtime during deployments?",
+        "options": [
+            "Manual restart",
+            "Blue-Green deployment",
+            "Direct DB edits",
+            "Stopping traffic"
+        ],
+        "answer": "Blue-Green deployment"
+    },
+    {
+        "domain": "web development",
+        "language": "devops",
+        "difficulty": "advanced",
+        "question": "Which orchestration tool manages containerized web services at scale?",
+        "options": [
+            "Kubernetes",
+            "Notepad",
+            "FTP",
+            "HTML"
+        ],
+        "answer": "Kubernetes"
+    },
+    {
+        "domain": "web development",
+        "language": "devops",
+        "difficulty": "advanced",
+        "question": "What is the best strategy for handling traffic spikes in production systems?",
+        "options": [
+            "Vertical scaling only",
+            "Auto-scaling groups",
+            "Manual restart",
+            "Disable logging"
+        ],
+        "answer": "Auto-scaling groups"
+    },
+    {
+        "domain": "web development",
+        "language": "testing",
+        "difficulty": "easy",
+        "question": "What is the purpose of unit testing?",
+        "options": [
+            "Test UI color",
+            "Test individual components",
+            "Deploy app",
+            "Increase traffic"
+        ],
+        "answer": "Test individual components"
+    },
+    {
+        "domain": "web development",
+        "language": "testing",
+        "difficulty": "medium",
+        "question": "Which testing approach validates API endpoints?",
+        "options": [
+            "Load testing only",
+            "Integration testing",
+            "Manual guessing",
+            "CSS testing"
+        ],
+        "answer": "Integration testing"
+    },
+    {
+        "domain": "web development",
+        "language": "testing",
+        "difficulty": "medium",
+        "question": "Which tool is widely used for end-to-end testing in web apps?",
+        "options": [
+            "Cypress",
+            "MS Paint",
+            "Git Bash",
+            "Figma"
+        ],
+        "answer": "Cypress"
+    },
+    {
+        "domain": "web development",
+        "language": "testing",
+        "difficulty": "advanced",
+        "question": "What ensures reliability before production deployment?",
+        "options": [
+            "Skipping tests",
+            "Automated regression testing",
+            "Manual commit",
+            "Direct merge to main"
+        ],
+        "answer": "Automated regression testing"
+    },
+    {
+        "domain": "web development",
+        "language": "testing",
+        "difficulty": "advanced",
+        "question": "Which testing type evaluates system performance under heavy traffic?",
+        "options": [
+            "Unit testing",
+            "Load testing",
+            "UI testing",
+            "Static testing"
+        ],
+        "answer": "Load testing"
+    },
+    {
+        "domain": "web development",
+        "language": "security",
+        "difficulty": "easy",
+        "question": "Which protocol secures data transmission over the web?",
+        "options": [
+            "HTTP",
+            "HTTPS",
+            "FTP",
+            "SMTP"
+        ],
+        "answer": "HTTPS"
+    },
+    {
+        "domain": "web development",
+        "language": "security",
+        "difficulty": "medium",
+        "question": "Which mechanism prevents cross-site scripting (XSS)?",
+        "options": [
+            "Input sanitization",
+            "Hardcoded passwords",
+            "Open CORS",
+            "Disable validation"
+        ],
+        "answer": "Input sanitization"
+    },
+    {
+        "domain": "web development",
+        "language": "security",
+        "difficulty": "medium",
+        "question": "Which strategy protects APIs from brute-force attacks?",
+        "options": [
+            "Rate limiting",
+            "Open access",
+            "Disable logging",
+            "Manual reset"
+        ],
+        "answer": "Rate limiting"
+    },
+    {
+        "domain": "web development",
+        "language": "security",
+        "difficulty": "advanced",
+        "question": "What is the most secure way to store user passwords?",
+        "options": [
+            "Plain text",
+            "Base64 encoding",
+            "Hashed with bcrypt",
+            "Local storage"
+        ],
+        "answer": "Hashed with bcrypt"
+    },
+    {
+        "domain": "web development",
+        "language": "security",
+        "difficulty": "advanced",
+        "question": "Which practice reduces attack surface in production?",
+        "options": [
+            "Open ports",
+            "Principle of least privilege",
+            "Disable firewall",
+            "Public database"
+        ],
+        "answer": "Principle of least privilege"
+    },
+    {
+        "domain": "web development",
+        "language": "cloud architecture",
+        "difficulty": "easy",
+        "question": "What is the main benefit of cloud hosting for web apps?",
+        "options": [
+            "Manual scaling",
+            "Elastic scalability",
+            "Local-only access",
+            "No monitoring"
+        ],
+        "answer": "Elastic scalability"
+    },
+    {
+        "domain": "web development",
+        "language": "cloud architecture",
+        "difficulty": "medium",
+        "question": "Which service improves global content delivery performance?",
+        "options": [
+            "CDN",
+            "FTP",
+            "SMTP",
+            "Local cache only"
+        ],
+        "answer": "CDN"
+    },
+    {
+        "domain": "web development",
+        "language": "cloud architecture",
+        "difficulty": "medium",
+        "question": "Which architecture pattern improves resilience?",
+        "options": [
+            "Single region",
+            "Multi-region deployment",
+            "Single server",
+            "Local database"
+        ],
+        "answer": "Multi-region deployment"
+    },
+    {
+        "domain": "web development",
+        "language": "cloud architecture",
+        "difficulty": "advanced",
+        "question": "Which pattern enables loosely coupled distributed services?",
+        "options": [
+            "Monolith",
+            "Event-driven architecture",
+            "Single-thread system",
+            "Hardcoded API"
+        ],
+        "answer": "Event-driven architecture"
+    },
+    {
+        "domain": "web development",
+        "language": "cloud architecture",
+        "difficulty": "advanced",
+        "question": "Which solution ensures high availability for databases?",
+        "options": [
+            "Single instance",
+            "Read replicas and failover",
+            "Manual backup",
+            "Disable logging"
+        ],
+        "answer": "Read replicas and failover"
+    },
+    {
+        "domain": "web development",
+        "language": "communication",
+        "difficulty": "easy",
+        "question": "How should a developer handle unclear requirements?",
+        "options": [
+            "Assume details",
+            "Seek clarification",
+            "Ignore",
+            "Delay project"
+        ],
+        "answer": "Seek clarification"
+    },
+    {
+        "domain": "web development",
+        "language": "communication",
+        "difficulty": "medium",
+        "question": "How should production incidents be communicated?",
+        "options": [
+            "Hide issue",
+            "Transparent status updates",
+            "Blame team",
+            "Ignore"
+        ],
+        "answer": "Transparent status updates"
+    },
+    {
+        "domain": "web development",
+        "language": "communication",
+        "difficulty": "medium",
+        "question": "What ensures alignment with cross-functional teams?",
+        "options": [
+            "Independent coding",
+            "Regular sprint meetings",
+            "Avoid meetings",
+            "Private planning"
+        ],
+        "answer": "Regular sprint meetings"
+    },
+    {
+        "domain": "web development",
+        "language": "communication",
+        "difficulty": "advanced",
+        "question": "How should a senior engineer handle architectural disagreements?",
+        "options": [
+            "Force decision",
+            "Data-driven discussion",
+            "Escalate instantly",
+            "Ignore"
+        ],
+        "answer": "Data-driven discussion"
+    },
+    {
+        "domain": "web development",
+        "language": "communication",
+        "difficulty": "advanced",
+        "question": "What builds trust during major refactoring?",
+        "options": [
+            "Silent changes",
+            "Clear documentation and updates",
+            "No tests",
+            "Random commits"
+        ],
+        "answer": "Clear documentation and updates"
+    },
+    {
+        "domain": "web development",
+        "language": "html and css",
+        "difficulty": "easy",
+        "question": "Which HTML element is used to define the structure of a webpage's main navigation links?",
+        "options": [
+            "<div>",
+            "<nav>",
+            "<header>",
+            "<section>"
+        ],
+        "answer": "<nav>"
+    },
+    {
+        "domain": "web development",
+        "language": "html and css",
+        "difficulty": "easy",
+        "question": "Which CSS property controls the space between an element's border and its content?",
+        "options": [
+            "margin",
+            "padding",
+            "border-spacing",
+            "gap"
+        ],
+        "answer": "padding"
+    },
+    {
+        "domain": "web development",
+        "language": "html and css",
+        "difficulty": "medium",
+        "question": "Which CSS layout model is best suited for building one-dimensional row or column layouts?",
+        "options": [
+            "CSS Grid",
+            "Flexbox",
+            "Float",
+            "Table"
+        ],
+        "answer": "Flexbox"
+    },
+    {
+        "domain": "web development",
+        "language": "html and css",
+        "difficulty": "medium",
+        "question": "Which CSS approach creates responsive designs that adapt to different screen sizes?",
+        "options": [
+            "Fixed pixel widths",
+            "Media queries with relative units",
+            "Inline styles only",
+            "Table layouts"
+        ],
+        "answer": "Media queries with relative units"
+    },
+    {
+        "domain": "web development",
+        "language": "html and css",
+        "difficulty": "advanced",
+        "question": "Which CSS technique improves rendering performance by isolating an element from the rest of the page layout?",
+        "options": [
+            "z-index stacking",
+            "CSS containment (contain property)",
+            "Float clearing",
+            "Position absolute"
+        ],
+        "answer": "CSS containment (contain property)"
+    },
+    {
+        "domain": "web development",
+        "language": "javascript",
+        "difficulty": "easy",
+        "question": "Which JavaScript method is used to add an element to the end of an array?",
+        "options": [
+            "shift()",
+            "unshift()",
+            "push()",
+            "splice()"
+        ],
+        "answer": "push()"
+    },
+    {
+        "domain": "web development",
+        "language": "javascript",
+        "difficulty": "easy",
+        "question": "Which keyword declares a block-scoped variable in modern JavaScript?",
+        "options": [
+            "var",
+            "let",
+            "def",
+            "static"
+        ],
+        "answer": "let"
+    },
+    {
+        "domain": "web development",
+        "language": "javascript",
+        "difficulty": "medium",
+        "question": "Which JavaScript feature allows asynchronous code to be written in a synchronous style?",
+        "options": [
+            "Callbacks",
+            "Promises only",
+            "async/await",
+            "setTimeout"
+        ],
+        "answer": "async/await"
+    },
+    {
+        "domain": "web development",
+        "language": "javascript",
+        "difficulty": "medium",
+        "question": "Which JavaScript concept allows a function to access variables from its outer scope even after the outer function has returned?",
+        "options": [
+            "Hoisting",
+            "Closure",
+            "Prototype chain",
+            "Event loop"
+        ],
+        "answer": "Closure"
+    },
+    {
+        "domain": "web development",
+        "language": "javascript",
+        "difficulty": "advanced",
+        "question": "Which JavaScript mechanism handles asynchronous callbacks in a non-blocking way?",
+        "options": [
+            "Call stack only",
+            "Event loop with callback queue",
+            "Synchronous execution",
+            "Global scope"
+        ],
+        "answer": "Event loop with callback queue"
+    },
+    {
+        "domain": "web development",
+        "language": "typescript",
+        "difficulty": "easy",
+        "question": "What is the primary benefit of TypeScript over plain JavaScript?",
+        "options": [
+            "Faster runtime",
+            "Static type checking",
+            "Smaller file size",
+            "No compilation needed"
+        ],
+        "answer": "Static type checking"
+    },
+    {
+        "domain": "web development",
+        "language": "typescript",
+        "difficulty": "easy",
+        "question": "Which TypeScript keyword defines a custom type shape for an object?",
+        "options": [
+            "class",
+            "interface",
+            "function",
+            "enum"
+        ],
+        "answer": "interface"
+    },
+    {
+        "domain": "web development",
+        "language": "typescript",
+        "difficulty": "medium",
+        "question": "Which TypeScript feature allows a variable to hold more than one type?",
+        "options": [
+            "Generics",
+            "Enums",
+            "Union types",
+            "Decorators"
+        ],
+        "answer": "Union types"
+    },
+    {
+        "domain": "web development",
+        "language": "typescript",
+        "difficulty": "medium",
+        "question": "Which TypeScript utility type makes all properties of a type optional?",
+        "options": [
+            "Required<T>",
+            "Readonly<T>",
+            "Partial<T>",
+            "Pick<T, K>"
+        ],
+        "answer": "Partial<T>"
+    },
+    {
+        "domain": "web development",
+        "language": "typescript",
+        "difficulty": "advanced",
+        "question": "Which TypeScript feature enables writing reusable code that works across multiple types while maintaining type safety?",
+        "options": [
+            "Enums",
+            "Decorators",
+            "Generics",
+            "Namespaces"
+        ],
+        "answer": "Generics"
+    },
+    {
+        "domain": "web development",
+        "language": "react",
+        "difficulty": "easy",
+        "question": "Which React hook manages local component state?",
+        "options": [
+            "useEffect",
+            "useRef",
+            "useState",
+            "useContext"
+        ],
+        "answer": "useState"
+    },
+    {
+        "domain": "web development",
+        "language": "react",
+        "difficulty": "easy",
+        "question": "Which React hook runs side effects after a component renders?",
+        "options": [
+            "useState",
+            "useCallback",
+            "useMemo",
+            "useEffect"
+        ],
+        "answer": "useEffect"
+    },
+    {
+        "domain": "web development",
+        "language": "react",
+        "difficulty": "medium",
+        "question": "Which React pattern shares stateful logic between components without changing the component hierarchy?",
+        "options": [
+            "HOC",
+            "Custom Hooks",
+            "Render Props",
+            "Context only"
+        ],
+        "answer": "Custom Hooks"
+    },
+    {
+        "domain": "web development",
+        "language": "react",
+        "difficulty": "medium",
+        "question": "Which React technique prevents unnecessary re-renders of expensive components?",
+        "options": [
+            "useEffect cleanup",
+            "React.memo",
+            "useRef",
+            "Strict Mode"
+        ],
+        "answer": "React.memo"
+    },
+    {
+        "domain": "web development",
+        "language": "react",
+        "difficulty": "advanced",
+        "question": "Which React feature splits a large bundle into smaller chunks loaded on demand?",
+        "options": [
+            "React.memo",
+            "useCallback",
+            "React.lazy with Suspense",
+            "useReducer"
+        ],
+        "answer": "React.lazy with Suspense"
+    },
+    {
+        "domain": "web development",
+        "language": "databases",
+        "difficulty": "easy",
+        "question": "Which database type is best suited for storing relational data with strict schemas?",
+        "options": [
+            "MongoDB",
+            "Redis",
+            "PostgreSQL",
+            "Cassandra"
+        ],
+        "answer": "PostgreSQL"
+    },
+    {
+        "domain": "web development",
+        "language": "databases",
+        "difficulty": "easy",
+        "question": "Which NoSQL database stores data as key-value pairs and is commonly used for caching?",
+        "options": [
+            "MySQL",
+            "Redis",
+            "MongoDB",
+            "SQLite"
+        ],
+        "answer": "Redis"
+    },
+    {
+        "domain": "web development",
+        "language": "databases",
+        "difficulty": "medium",
+        "question": "Which ORM library is commonly used with Node.js to interact with SQL databases?",
+        "options": [
+            "Mongoose",
+            "Sequelize",
+            "Flask-SQLAlchemy",
+            "Hibernate"
+        ],
+        "answer": "Sequelize"
+    },
+    {
+        "domain": "web development",
+        "language": "databases",
+        "difficulty": "medium",
+        "question": "Which database strategy improves read performance for high-traffic web applications?",
+        "options": [
+            "Single write instance",
+            "Read replicas",
+            "Disabling indexes",
+            "Manual queries"
+        ],
+        "answer": "Read replicas"
+    },
+    {
+        "domain": "web development",
+        "language": "databases",
+        "difficulty": "advanced",
+        "question": "Which database migration strategy prevents data loss while adding new columns to a production table?",
+        "options": [
+            "Drop and recreate table",
+            "Backward-compatible migration with default values",
+            "Manual data entry",
+            "Disable constraints temporarily"
+        ],
+        "answer": "Backward-compatible migration with default values"
+    },
+    {
+        "domain": "web development",
+        "language": "authentication and authorization",
+        "difficulty": "easy",
+        "question": "What is the difference between authentication and authorization?",
+        "options": [
+            "They are the same",
+            "Authentication verifies identity; authorization controls access",
+            "Authorization verifies identity; authentication controls access",
+            "Both handle passwords only"
+        ],
+        "answer": "Authentication verifies identity; authorization controls access"
+    },
+    {
+        "domain": "web development",
+        "language": "authentication and authorization",
+        "difficulty": "easy",
+        "question": "Which token format is commonly used for stateless authentication in web APIs?",
+        "options": [
+            "Session ID",
+            "JWT",
+            "Cookie only",
+            "API Key only"
+        ],
+        "answer": "JWT"
+    },
+    {
+        "domain": "web development",
+        "language": "authentication and authorization",
+        "difficulty": "medium",
+        "question": "Which OAuth 2.0 grant type is most secure for server-side web applications?",
+        "options": [
+            "Implicit flow",
+            "Client credentials",
+            "Authorization code flow",
+            "Password grant"
+        ],
+        "answer": "Authorization code flow"
+    },
+    {
+        "domain": "web development",
+        "language": "authentication and authorization",
+        "difficulty": "medium",
+        "question": "Which mechanism adds an extra layer of security beyond passwords?",
+        "options": [
+            "Longer passwords",
+            "Multi-factor authentication (MFA)",
+            "IP whitelisting only",
+            "Session cookies"
+        ],
+        "answer": "Multi-factor authentication (MFA)"
+    },
+    {
+        "domain": "web development",
+        "language": "authentication and authorization",
+        "difficulty": "advanced",
+        "question": "Which token strategy allows secure API access refresh without re-authentication?",
+        "options": [
+            "Single long-lived JWT",
+            "Refresh token rotation with short-lived access tokens",
+            "Permanent session cookies",
+            "Hardcoded API keys"
+        ],
+        "answer": "Refresh token rotation with short-lived access tokens"
+    },
+    {
+        "domain": "web development",
+        "language": "performance optimization",
+        "difficulty": "easy",
+        "question": "Which technique reduces the number of HTTP requests by combining multiple CSS or JS files?",
+        "options": [
+            "Minification",
+            "Bundling",
+            "Lazy loading",
+            "Compression"
+        ],
+        "answer": "Bundling"
+    },
+    {
+        "domain": "web development",
+        "language": "performance optimization",
+        "difficulty": "easy",
+        "question": "Which image format provides better compression with transparency support for web use?",
+        "options": [
+            "BMP",
+            "TIFF",
+            "WebP",
+            "GIF"
+        ],
+        "answer": "WebP"
+    },
+    {
+        "domain": "web development",
+        "language": "performance optimization",
+        "difficulty": "medium",
+        "question": "Which technique delays loading of off-screen images until they are about to enter the viewport?",
+        "options": [
+            "Prefetching",
+            "Preloading",
+            "Lazy loading",
+            "Caching"
+        ],
+        "answer": "Lazy loading"
+    },
+    {
+        "domain": "web development",
+        "language": "performance optimization",
+        "difficulty": "medium",
+        "question": "Which Core Web Vital metric measures how quickly the largest visible content element loads?",
+        "options": [
+            "FID",
+            "CLS",
+            "LCP",
+            "FCP"
+        ],
+        "answer": "LCP"
+    },
+    {
+        "domain": "web development",
+        "language": "performance optimization",
+        "difficulty": "advanced",
+        "question": "Which rendering strategy pre-generates HTML at build time for maximum performance and SEO?",
+        "options": [
+            "Client-side rendering",
+            "Server-side rendering on every request",
+            "Static site generation (SSG)",
+            "No rendering"
+        ],
+        "answer": "Static site generation (SSG)"
+    },
+    {
+        "domain": "web development",
+        "language": "http and web protocols",
+        "difficulty": "easy",
+        "question": "Which HTTP status code indicates the requested resource was not found?",
+        "options": [
+            "200",
+            "301",
+            "404",
+            "500"
+        ],
+        "answer": "404"
+    },
+    {
+        "domain": "web development",
+        "language": "http and web protocols",
+        "difficulty": "easy",
+        "question": "Which HTTP method is idempotent and used to update an entire resource?",
+        "options": [
+            "POST",
+            "PATCH",
+            "PUT",
+            "DELETE"
+        ],
+        "answer": "PUT"
+    },
+    {
+        "domain": "web development",
+        "language": "http and web protocols",
+        "difficulty": "medium",
+        "question": "Which HTTP/2 feature allows the server to push resources to the client before they are requested?",
+        "options": [
+            "Multiplexing",
+            "Server Push",
+            "Header compression",
+            "Binary framing"
+        ],
+        "answer": "Server Push"
+    },
+    {
+        "domain": "web development",
+        "language": "http and web protocols",
+        "difficulty": "medium",
+        "question": "Which protocol enables full-duplex real-time communication between a browser and server?",
+        "options": [
+            "HTTP/1.1",
+            "HTTPS",
+            "WebSocket",
+            "FTP"
+        ],
+        "answer": "WebSocket"
+    },
+    {
+        "domain": "web development",
+        "language": "http and web protocols",
+        "difficulty": "advanced",
+        "question": "Which HTTP caching header tells browsers how long to cache a resource before revalidating?",
+        "options": [
+            "ETag",
+            "Last-Modified",
+            "Cache-Control: max-age",
+            "Pragma"
+        ],
+        "answer": "Cache-Control: max-age"
+    }
 ]
