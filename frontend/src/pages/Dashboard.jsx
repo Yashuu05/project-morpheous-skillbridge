@@ -169,9 +169,9 @@ function SkillGapTab({ user }) {
                     {saved && <div style={{ color: '#4ade80', fontSize: 11, marginTop: 8 }}>✓ Saved to profile</div>}
                 </div>
                 <div style={{ flex: 1, minWidth: 260, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 24 }}>
-                    <h4 style={{ color: '#f0ffdf', fontSize: 13, fontWeight: 700, marginBottom: 10 }}>📐 Formula Legend</h4>
+                    <h4 style={{ color: '#f0ffdf', fontSize: 13, fontWeight: 700, marginBottom: 10 }}>📐 Formula Applied</h4>
                     {Object.values(formula_legend).map((v, i) => (
-                        <div key={i} style={{ fontFamily: 'monospace', fontSize: 11, color: 'rgba(240,255,223,0.65)', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>{v}</div>
+                        <div key={i} style={{ fontFamily: 'monospace', fontSize: 13, color: 'rgba(240,255,223,0.9)', padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>{v}</div>
                     ))}
                     <div style={{ marginTop: 8, fontSize: 12, color: 'rgba(240,255,223,0.4)' }}>
                         Matched role: <strong style={{ color: '#a5b4fc', textTransform: 'capitalize' }}>{role}</strong>
@@ -216,7 +216,7 @@ function SkillGapTab({ user }) {
                                         <td style={{ padding: '9px 10px', color: 'rgba(240,255,223,0.85)', fontWeight: 600, textTransform: 'capitalize' }}>{s.step.replace('Skill: ', '')}</td>
                                         <td style={{ padding: '9px 10px', color: '#a5b4fc', fontFamily: 'monospace' }}>{Math.round(s.required * 100)}%</td>
                                         <td style={{ padding: '9px 10px', color: '#60a5fa', fontFamily: 'monospace' }}>{Math.round(s.user_score * 100)}%</td>
-                                        <td style={{ padding: '9px 10px', color: 'rgba(240,255,223,0.6)', fontFamily: 'monospace', fontSize: 11 }}>{s.formula}</td>
+                                        <td style={{ padding: '9px 10px', color: 'rgba(240,255,223,0.9)', fontFamily: 'monospace', fontSize: 13 }}>{s.formula}</td>
                                         <td style={{ padding: '9px 10px', color: s.gap > 0 ? '#f87171' : '#4ade80', fontFamily: 'monospace', fontWeight: 700 }}>{s.weighted_gap}</td>
                                         <td style={{ padding: '9px 10px' }}>
                                             <span style={{ background: st.bg, border: `1px solid ${st.border}`, color: st.text, padding: '2px 8px', borderRadius: 99, fontSize: 11, fontWeight: 600 }}>{st.label}</span>
@@ -229,11 +229,11 @@ function SkillGapTab({ user }) {
                             <tr style={{ background: 'rgba(255,255,255,0.03)', borderTop: '2px solid rgba(255,255,255,0.1)' }}>
                                 <td colSpan={4} style={{ padding: '10px', color: 'rgba(240,255,223,0.7)', fontWeight: 700 }}>Σ Totals</td>
                                 <td style={{ padding: '10px', color: '#fbbf24', fontFamily: 'monospace', fontWeight: 800 }}>{sum_weighted_gaps}</td>
-                                <td style={{ padding: '10px', color: 'rgba(240,255,223,0.5)', fontSize: 11, fontFamily: 'monospace' }}>Σ weights = {sum_weights}</td>
+                                <td style={{ padding: '10px', color: 'rgba(240,255,223,0.5)', fontSize: 13, fontFamily: 'monospace' }}>Σ weights = {sum_weights}</td>
                             </tr>
                             <tr style={{ background: 'rgba(99,102,241,0.08)' }}>
-                                <td colSpan={6} style={{ padding: '10px', fontFamily: 'monospace', fontSize: 12, color: '#a5b4fc' }}>
-                                    total_gap = {sum_weighted_gaps} / {sum_weights} = <strong>{total_gap}</strong>
+                                <td colSpan={6} style={{ padding: '10px', fontFamily: 'monospace', fontSize: 14, color: '#FFFFFF' }}>
+                                    total_gap = {sum_weighted_gaps} / {sum_weights} = <strong style={{ color: '#fbbf24' }}>{total_gap}</strong>
                                     &nbsp;&nbsp;│&nbsp;&nbsp;
                                     readiness = (1 − {total_gap}) × 100 = <strong style={{ color: gradeColor }}>{readiness}%</strong>
                                 </td>

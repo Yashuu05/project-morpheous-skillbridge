@@ -19,7 +19,7 @@ function ScoreBar({ label, score, weighted, weight, color, formula }) {
             <div style={{ height: 7, borderRadius: 99, background: 'rgba(255,255,255,0.07)' }}>
                 <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 99, transition: 'width 0.6s ease' }} />
             </div>
-            <div style={{ fontFamily: 'monospace', fontSize: 10, color: 'rgba(240,255,223,0.3)', marginTop: 2 }}>{formula}</div>
+            <div style={{ fontFamily: 'monospace', fontSize: 12, color: 'rgba(240,255,223,0.85)', marginTop: 2 }}>{formula}</div>
         </div>
     );
 }
@@ -117,9 +117,9 @@ export default function CareerMatchTab({ user }) {
 
             {/* Formula legend */}
             <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '14px 18px', marginBottom: 18 }}>
-                <div style={{ color: '#f0ffdf', fontSize: 12, fontWeight: 700, marginBottom: 8 }}>📐 Formula Legend</div>
+                <div style={{ color: '#f0ffdf', fontSize: 12, fontWeight: 700, marginBottom: 8 }}>📐 Formula Applied</div>
                 {Object.values(formula_legend).map((v, i) => (
-                    <div key={i} style={{ fontFamily: 'monospace', fontSize: 11, color: 'rgba(240,255,223,0.5)', padding: '2px 0' }}>{v}</div>
+                    <div key={i} style={{ fontFamily: 'monospace', fontSize: 13, color: 'rgba(240,255,223,0.9)', padding: '3px 0' }}>{v}</div>
                 ))}
             </div>
 
@@ -177,7 +177,7 @@ export default function CareerMatchTab({ user }) {
                         </div>
 
                         {/* Final formula */}
-                        <div style={{ fontFamily: 'monospace', fontSize: 11, color: `${rankColor}cc`, background: `${rankColor}09`, border: `1px solid ${rankColor}22`, borderRadius: 8, padding: '8px 12px', marginBottom: 16 }}>
+                        <div style={{ fontFamily: 'monospace', fontSize: 13, color: '#FFFFFF', background: `${rankColor}15`, border: `1px solid ${rankColor}33`, borderRadius: 8, padding: '10px 14px', marginBottom: 16 }}>
                             {bd.final.formula}
                         </div>
 
@@ -231,14 +231,14 @@ export default function CareerMatchTab({ user }) {
                                                 <td style={{ padding: '6px 8px', color: '#60a5fa', fontFamily: 'monospace' }}>{Math.round(s.user_score * 100)}%</td>
                                                 <td style={{ padding: '6px 8px', color: '#a5b4fc', fontFamily: 'monospace' }}>{Math.round(s.benchmark * 100)}%</td>
                                                 <td style={{ padding: '6px 8px', color: s.contribution > 0 ? '#4ade80' : 'rgba(240,255,223,0.2)', fontFamily: 'monospace', fontWeight: 700 }}>{Math.round(s.contribution * 100)}%</td>
-                                                <td style={{ padding: '6px 8px', color: 'rgba(240,255,223,0.32)', fontFamily: 'monospace' }}>{s.formula}</td>
+                                                <td style={{ padding: '6px 8px', color: 'rgba(240,255,223,0.85)', fontFamily: 'monospace', fontSize: 12 }}>{s.formula}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                     <tfoot>
                                         <tr style={{ background: 'rgba(255,255,255,0.03)', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
                                             <td colSpan={3} style={{ padding: '8px', color: 'rgba(240,255,223,0.6)', fontWeight: 700 }}>test_alignment</td>
-                                            <td colSpan={2} style={{ padding: '8px', color: '#60a5fa', fontFamily: 'monospace', fontWeight: 800 }}>{bd.test_alignment.formula}</td>
+                                            <td colSpan={2} style={{ padding: '8px', color: '#FFFFFF', fontFamily: 'monospace', fontSize: 13, fontWeight: 800 }}>{bd.test_alignment.formula}</td>
                                         </tr>
                                     </tfoot>
                                 </table>
