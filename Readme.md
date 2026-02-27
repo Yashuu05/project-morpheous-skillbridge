@@ -46,35 +46,36 @@
 ![landing page preview](assets/landing.png)
 
 ---
-
+### 2. login Page
 ![login pag preview](assets/login.png)
 
 ---
 
+### 3. Signup page
 ![signup page preview](assets/signup.png)
 
 ---
-
+### 4. Dashboard
 ![dashboard preview](assets/dashboard.png)
 
 ---
-
+### 5. Resume upload and parsing
 ![resume preview](assets/resume.png)
 
 ---
-
+### 6. Skill Gap Analysis
 ![skill gap preview](assets/skill_gap.png)
 
 ---
-
+### 7. Assessment
 ![assessment preview](assets/assessment.png)
 
 ---
-
+### 8. Career Match
 ![career match preview](assets/career_match.png)
 
 ---
-
+### 9. Roadmap
 ![roadmap preview](assets/roadmap.png)
 
 ---
