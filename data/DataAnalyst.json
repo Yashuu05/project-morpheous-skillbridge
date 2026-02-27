@@ -1,0 +1,83 @@
+[
+  {
+    "domain": "data analyst",
+    "language": "sql",
+    "difficulty": "easy",
+    "question": "Which SQL function calculates cumulative totals in enterprise reports?",
+    "options": ["GROUP BY", "WINDOW FUNCTION", "JOIN", "DISTINCT"],
+    "answer": "WINDOW FUNCTION"
+  },
+  {
+    "domain": "data analyst",
+    "language": "sql",
+    "difficulty": "medium",
+    "question": "Which join type ensures all records from the left table are retained?",
+    "options": ["INNER JOIN", "RIGHT JOIN", "LEFT JOIN", "CROSS JOIN"],
+    "answer": "LEFT JOIN"
+  },
+  {
+    "domain": "data analyst",
+    "language": "sql",
+    "difficulty": "advanced",
+    "question": "Which indexing strategy improves query performance on large analytical tables?",
+    "options": ["No index", "Clustered index", "Random index", "Manual sorting"],
+    "answer": "Clustered index"
+  },
+  {
+    "domain": "data analyst",
+    "language": "sql",
+    "difficulty": "medium",
+    "question": "Which clause filters aggregated results?",
+    "options": ["WHERE", "HAVING", "ORDER BY", "LIMIT"],
+    "answer": "HAVING"
+  },
+  {
+    "domain": "data analyst",
+    "language": "sql",
+    "difficulty": "advanced",
+    "question": "Which architecture supports scalable BI reporting?",
+    "options": ["Flat files", "Data Warehouse", "Local Excel", "Manual CSV"],
+    "answer": "Data Warehouse"
+  },
+
+  {
+    "domain": "data analyst",
+    "language": "stakeholder communication",
+    "difficulty": "easy",
+    "question": "What improves stakeholder trust in dashboards?",
+    "options": ["Complex charts", "Transparent KPI definitions", "Hidden formulas", "Raw SQL only"],
+    "answer": "Transparent KPI definitions"
+  },
+  {
+    "domain": "data analyst",
+    "language": "stakeholder communication",
+    "difficulty": "medium",
+    "question": "When KPIs conflict across teams, what should an analyst do?",
+    "options": ["Ignore conflict", "Align through discussion", "Choose one arbitrarily", "Stop reporting"],
+    "answer": "Align through discussion"
+  },
+  {
+    "domain": "data analyst",
+    "language": "stakeholder communication",
+    "difficulty": "advanced",
+    "question": "How should analysts present negative insights?",
+    "options": ["Hide them", "Blame teams", "Provide data-backed recommendations", "Avoid presentation"],
+    "answer": "Provide data-backed recommendations"
+  },
+  {
+    "domain": "data analyst",
+    "language": "stakeholder communication",
+    "difficulty": "medium",
+    "question": "Which approach ensures executive clarity?",
+    "options": ["Technical jargon", "Business outcome framing", "Raw datasets", "SQL logs"],
+    "answer": "Business outcome framing"
+  },
+  {
+    "domain": "data analyst",
+    "language": "stakeholder communication",
+    "difficulty": "advanced",
+    "question": "What reduces misinterpretation of dashboards?",
+    "options": ["Multiple chart types", "Standardized definitions", "Color overload", "Hidden filters"],
+    "answer": "Standardized definitions"
+  }
+]

@@ -1,0 +1,83 @@
+[
+  {
+    "domain": "AI engineer",
+    "language": "deep learning",
+    "difficulty": "easy",
+    "question": "Which activation function is commonly used in hidden layers to avoid vanishing gradients in deep networks?",
+    "options": ["Sigmoid", "ReLU", "Softmax", "Tanh"],
+    "answer": "ReLU"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "deep learning",
+    "difficulty": "medium",
+    "question": "Which technique improves generalization in large neural networks deployed in production?",
+    "options": ["Overtraining", "Dropout", "Removing validation data", "Increasing batch size infinitely"],
+    "answer": "Dropout"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "deep learning",
+    "difficulty": "advanced",
+    "question": "Which approach is best for optimizing large transformer models under GPU memory constraints?",
+    "options": ["Full precision training", "Gradient checkpointing", "Increasing batch size", "Using CPU only"],
+    "answer": "Gradient checkpointing"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "deep learning",
+    "difficulty": "medium",
+    "question": "Which loss function is most suitable for multi-class classification problems?",
+    "options": ["Mean Squared Error", "Binary Cross Entropy", "Categorical Cross Entropy", "Hinge Loss"],
+    "answer": "Categorical Cross Entropy"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "deep learning",
+    "difficulty": "advanced",
+    "question": "Which strategy reduces inference latency in production AI systems?",
+    "options": ["Larger models", "Model quantization", "Increasing parameters", "Higher precision floats"],
+    "answer": "Model quantization"
+  },
+
+  {
+    "domain": "AI engineer",
+    "language": "mlops",
+    "difficulty": "easy",
+    "question": "What is the primary purpose of CI/CD in ML systems?",
+    "options": ["Manual deployment", "Automated testing and deployment", "Skipping validation", "Local experiments only"],
+    "answer": "Automated testing and deployment"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "mlops",
+    "difficulty": "medium",
+    "question": "Which tool is commonly used for tracking ML experiments and model versions?",
+    "options": ["MS Word", "MLflow", "Excel", "PowerPoint"],
+    "answer": "MLflow"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "mlops",
+    "difficulty": "advanced",
+    "question": "Which monitoring approach detects model performance degradation in production?",
+    "options": ["Static dashboards", "Data and prediction drift monitoring", "Manual observation", "Increasing epochs"],
+    "answer": "Data and prediction drift monitoring"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "mlops",
+    "difficulty": "medium",
+    "question": "Which containerization technology is widely used for ML model deployment?",
+    "options": ["VirtualBox", "Docker", "VMware only", "Local runtime"],
+    "answer": "Docker"
+  },
+  {
+    "domain": "AI engineer",
+    "language": "mlops",
+    "difficulty": "advanced",
+    "question": "Which orchestration tool is commonly used to manage containerized ML workloads at scale?",
+    "options": ["Kubernetes", "Notepad", "FTP", "Manual SSH"],
+    "answer": "Kubernetes"
+  }
+]

@@ -1,0 +1,83 @@
+[
+  {
+    "domain": "data science",
+    "language": "python",
+    "difficulty": "easy",
+    "question": "In a production ML system, which Python library is best suited for building scalable REST APIs for model serving?",
+    "options": ["Flask", "FastAPI", "Tkinter", "PyGame"],
+    "answer": "FastAPI"
+  },
+  {
+    "domain": "data science",
+    "language": "python",
+    "difficulty": "medium",
+    "question": "Which Python feature improves memory efficiency when processing large streaming datasets?",
+    "options": ["Lists", "Generators", "Tuples", "Dictionaries"],
+    "answer": "Generators"
+  },
+  {
+    "domain": "data science",
+    "language": "python",
+    "difficulty": "advanced",
+    "question": "Which technique is most suitable for parallelizing CPU-bound ML preprocessing tasks in Python?",
+    "options": ["Threading", "Multiprocessing", "Asyncio", "Lambda functions"],
+    "answer": "Multiprocessing"
+  },
+  {
+    "domain": "data science",
+    "language": "python",
+    "difficulty": "medium",
+    "question": "Which library is most appropriate for distributed data processing at scale?",
+    "options": ["Pandas", "NumPy", "Dask", "Matplotlib"],
+    "answer": "Dask"
+  },
+  {
+    "domain": "data science",
+    "language": "python",
+    "difficulty": "advanced",
+    "question": "Which approach ensures reproducibility in enterprise ML experiments?",
+    "options": ["Random coding practices", "Versioning datasets and seeds", "Manual documentation", "Local-only execution"],
+    "answer": "Versioning datasets and seeds"
+  },
+
+  {
+    "domain": "data science",
+    "language": "machine learning",
+    "difficulty": "easy",
+    "question": "Which metric is most suitable for evaluating binary classifiers in balanced datasets?",
+    "options": ["Accuracy", "RMSE", "MAE", "Log Loss"],
+    "answer": "Accuracy"
+  },
+  {
+    "domain": "data science",
+    "language": "machine learning",
+    "difficulty": "medium",
+    "question": "Which technique reduces variance in ensemble learning?",
+    "options": ["Bagging", "Gradient Descent", "Normalization", "Standardization"],
+    "answer": "Bagging"
+  },
+  {
+    "domain": "data science",
+    "language": "machine learning",
+    "difficulty": "advanced",
+    "question": "Which validation strategy is most reliable for time-series forecasting models?",
+    "options": ["Random K-Fold", "Leave-One-Out", "Rolling Window Validation", "Bootstrap"],
+    "answer": "Rolling Window Validation"
+  },
+  {
+    "domain": "data science",
+    "language": "machine learning",
+    "difficulty": "medium",
+    "question": "Which method is best to handle multicollinearity in regression models?",
+    "options": ["Increase features", "Ridge Regression", "Remove validation", "Increase epochs"],
+    "answer": "Ridge Regression"
+  },
+  {
+    "domain": "data science",
+    "language": "machine learning",
+    "difficulty": "advanced",
+    "question": "Which approach detects model drift in production?",
+    "options": ["Manual inspection", "Statistical distribution monitoring", "Increasing batch size", "Changing optimizer"],
+    "answer": "Statistical distribution monitoring"
+  }
+]

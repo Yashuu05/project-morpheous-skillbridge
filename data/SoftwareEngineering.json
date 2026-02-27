@@ -1,0 +1,42 @@
+ [
+ {
+    "domain": "software engineering",
+    "language": "system design",
+    "difficulty": "easy",
+    "question": "Which architecture is best for independent service scaling?",
+    "options": ["Monolith", "Microservices", "Single-tier", "Local server"],
+    "answer": "Microservices"
+  },
+  {
+    "domain": "software engineering",
+    "language": "system design",
+    "difficulty": "medium",
+    "question": "Which database improves horizontal scalability?",
+    "options": ["Relational DB only", "NoSQL distributed DB", "Local SQLite", "Excel"],
+    "answer": "NoSQL distributed DB"
+  },
+  {
+    "domain": "software engineering",
+    "language": "system design",
+    "difficulty": "advanced",
+    "question": "Which technique ensures fault tolerance?",
+    "options": ["Single server", "Redundancy and replication", "Manual backup", "Local storage"],
+    "answer": "Redundancy and replication"
+  },
+  {
+    "domain": "software engineering",
+    "language": "system design",
+    "difficulty": "medium",
+    "question": "Which pattern supports asynchronous processing?",
+    "options": ["Blocking calls", "Event-driven architecture", "Sequential execution", "Single thread"],
+    "answer": "Event-driven architecture"
+  },
+  {
+    "domain": "software engineering",
+    "language": "system design",
+    "difficulty": "advanced",
+    "question": "Which method minimizes downtime during deployment?",
+    "options": ["Manual restart", "Blue-Green deployment", "Single instance update", "Shutdown first"],
+    "answer": "Blue-Green deployment"
+  }
+]

@@ -6,6 +6,7 @@ import Signup from './pages/Signup';
 import Login from './pages/login';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard.jsx';
+import MCQTest from './pages/MCQTest';
 
 function App() {
     return (
@@ -17,6 +18,7 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/assessment" element={<MCQTest />} />
                     {/* Catch-all */}
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>

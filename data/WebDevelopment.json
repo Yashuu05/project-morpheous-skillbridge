@@ -1,0 +1,83 @@
+[
+{
+    "domain": "web development",
+    "language": "frontend",
+    "difficulty": "easy",
+    "question": "Which technique improves perceived loading performance in modern web applications?",
+    "options": ["Blocking rendering", "Skeleton screens", "Large images first", "Inline heavy scripts"],
+    "answer": "Skeleton screens"
+  },
+  {
+    "domain": "web development",
+    "language": "frontend",
+    "difficulty": "medium",
+    "question": "Which approach improves React application performance?",
+    "options": ["Frequent re-renders", "Memoization using React.memo", "Inline heavy computations", "Global state misuse"],
+    "answer": "Memoization using React.memo"
+  },
+  {
+    "domain": "web development",
+    "language": "frontend",
+    "difficulty": "advanced",
+    "question": "Which strategy reduces bundle size in enterprise-scale applications?",
+    "options": ["Adding libraries", "Tree shaking", "Duplicating code", "Inline everything"],
+    "answer": "Tree shaking"
+  },
+  {
+    "domain": "web development",
+    "language": "frontend",
+    "difficulty": "medium",
+    "question": "Which web API improves offline capability in progressive web apps?",
+    "options": ["LocalStorage only", "Service Workers", "Cookies", "SessionStorage"],
+    "answer": "Service Workers"
+  },
+  {
+    "domain": "web development",
+    "language": "frontend",
+    "difficulty": "advanced",
+    "question": "Which technique ensures accessibility compliance in enterprise apps?",
+    "options": ["Ignoring ARIA roles", "Semantic HTML and ARIA standards", "Only visual testing", "Color-only indicators"],
+    "answer": "Semantic HTML and ARIA standards"
+  },
+
+  {
+    "domain": "web development",
+    "language": "backend",
+    "difficulty": "easy",
+    "question": "Which authentication method is commonly used for stateless REST APIs?",
+    "options": ["Session cookies only", "JWT", "Hardcoded tokens", "Open access"],
+    "answer": "JWT"
+  },
+  {
+    "domain": "web development",
+    "language": "backend",
+    "difficulty": "medium",
+    "question": "Which technique prevents SQL injection attacks?",
+    "options": ["String concatenation", "Prepared statements", "Manual filtering only", "Client-side validation"],
+    "answer": "Prepared statements"
+  },
+  {
+    "domain": "web development",
+    "language": "backend",
+    "difficulty": "advanced",
+    "question": "Which caching strategy reduces database load in high-traffic systems?",
+    "options": ["Disable cache", "Redis caching layer", "Repeated DB calls", "Manual refresh"],
+    "answer": "Redis caching layer"
+  },
+  {
+    "domain": "web development",
+    "language": "backend",
+    "difficulty": "medium",
+    "question": "Which API design principle improves scalability?",
+    "options": ["Stateful services", "Stateless architecture", "Tightly coupled modules", "Hardcoded responses"],
+    "answer": "Stateless architecture"
+  },
+  {
+    "domain": "web development",
+    "language": "backend",
+    "difficulty": "advanced",
+    "question": "Which strategy ensures high availability in distributed backend systems?",
+    "options": ["Single server", "Load balancing with replication", "Manual restart", "Local database only"],
+    "answer": "Load balancing with replication"
+  }
+]
