@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Zap, Eye, EyeOff, ArrowRight, ArrowLeft, User, Lock, CheckCircle2 } from 'lucide-react';
+import { Zap, Eye, EyeOff, ArrowRight, ArrowLeft, User, Lock, CheckCircle2, Loader2 } from 'lucide-react';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '../firebase';
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -9,7 +12,8 @@ const Signup = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState({});
-    const [submitted, setSubmitted] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [firebaseError, setFirebaseError] = useState('');
 
     // ─── Password strength ─────────────────────────────────────────────────────
     const getPasswordStrength = (pwd) => {
@@ -58,53 +62,53 @@ const Signup = () => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
         if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+        if (firebaseError) setFirebaseError('');
     };
 
-    const handleSubmit = (e) => {
+    // ─── Submit — Firebase Auth + Firestore ────────────────────────────────────
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setFirebaseError('');
+
         const errs = validate();
         if (Object.keys(errs).length > 0) {
             setErrors(errs);
             return;
         }
-        // ✅ Validation passed — backend integration reserved for future sprint.
-        setSubmitted(true);
-    };
 
-    // ─── Success state ─────────────────────────────────────────────────────────
-    if (submitted) {
-        return (
-            <div className="min-h-screen bg-[#2B2A2A] flex items-center justify-center px-4">
-                <div
-                    className="text-center animate-fade-up"
-                    style={{ animation: 'fadeUp 0.6s ease-out forwards' }}
-                >
-                    <div className="w-20 h-20 bg-[#237227] rounded-full flex items-center justify-center mx-auto mb-6">
-                        <CheckCircle2 size={40} className="text-[#F0FFDF]" />
-                    </div>
-                    <h2 className="text-3xl font-bold text-[#F0FFDF] mb-3">Account Created!</h2>
-                    <p className="text-[#F0FFDF] opacity-70 mb-2">
-                        Welcome, <span className="text-[#237227] font-semibold">{formData.username}</span>!
-                    </p>
-                    <p className="text-[#F0FFDF] opacity-50 text-sm mb-8">
-                        Backend integration coming soon. Your account will be saved then.
-                    </p>
-                    <button
-                        onClick={() => navigate('/')}
-                        className="bg-[#237227] text-[#F0FFDF] px-8 py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all duration-300 inline-flex items-center gap-2 group"
-                    >
-                        Back to Home <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                    </button>
-                </div>
-                <style>{`
-          @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to   { opacity: 1; transform: translateY(0); }
-          }
-        `}</style>
-            </div>
-        );
-    }
+        setSubmitting(true);
+        const username = formData.username.trim().toLowerCase();
+
+        try {
+            // 1️⃣  Firebase Auth — password is hashed by Firebase, never stored in plain text
+            //     We generate a synthetic email since Firebase Auth requires one.
+            const internalEmail = `${username}@skillbridge.app`;
+            const credential = await createUserWithEmailAndPassword(auth, internalEmail, formData.password);
+            const uid = credential.user.uid;
+
+            // 2️⃣  Firestore — save user profile (NO password stored here)
+            await setDoc(doc(db, 'users', uid), {
+                uid,
+                username: formData.username.trim(),    // preserve original casing
+                usernameLower: username,               // for case-insensitive lookups
+                createdAt: serverTimestamp(),
+            });
+
+            // Redirect to profile completion page
+            navigate('/profile');
+        } catch (err) {
+            // Map Firebase error codes to human-readable messages
+            const msgMap = {
+                'auth/email-already-in-use': 'This username is already taken. Please choose another.',
+                'auth/weak-password': 'Password is too weak. Please use at least 8 characters.',
+                'auth/network-request-failed': 'Network error. Please check your connection and try again.',
+                'auth/too-many-requests': 'Too many attempts. Please wait a moment and try again.',
+            };
+            setFirebaseError(msgMap[err.code] || `Signup failed: ${err.message}`);
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     // ─── Signup form ───────────────────────────────────────────────────────────
     return (
@@ -114,14 +118,10 @@ const Signup = () => {
         >
             {/* Background blobs */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div
-                    className="absolute w-96 h-96 bg-[#237227] rounded-full filter blur-3xl opacity-5"
-                    style={{ animation: 'blob 8s ease-in-out infinite', top: '-5%', right: '-5%' }}
-                />
-                <div
-                    className="absolute w-80 h-80 bg-[#237227] rounded-full filter blur-3xl opacity-5"
-                    style={{ animation: 'blob 10s ease-in-out infinite reverse', bottom: '-5%', left: '-5%' }}
-                />
+                <div className="absolute w-96 h-96 bg-[#237227] rounded-full filter blur-3xl opacity-5"
+                    style={{ animation: 'blob 8s ease-in-out infinite', top: '-5%', right: '-5%' }} />
+                <div className="absolute w-80 h-80 bg-[#237227] rounded-full filter blur-3xl opacity-5"
+                    style={{ animation: 'blob 10s ease-in-out infinite reverse', bottom: '-5%', left: '-5%' }} />
             </div>
 
             {/* Navbar */}
@@ -132,22 +132,18 @@ const Signup = () => {
                     </div>
                     <span className="text-lg font-bold text-[#F0FFDF]">SkillBridge</span>
                 </Link>
-                <Link
-                    to="/"
-                    className="flex items-center gap-2 text-[#F0FFDF] opacity-70 hover:opacity-100 hover:text-[#237227] transition-all text-sm font-medium"
-                >
+                <Link to="/" className="flex items-center gap-2 text-[#F0FFDF] opacity-70 hover:opacity-100 hover:text-[#237227] transition-all text-sm font-medium">
                     <ArrowLeft size={16} /> Back to Home
                 </Link>
             </nav>
 
             {/* Main content */}
             <div className="relative z-10 flex-1 flex items-center justify-center px-4 py-12">
-                <div
-                    className="w-full max-w-md"
-                    style={{ animation: 'fadeUp 0.5s ease-out forwards' }}
-                >
+                <div className="w-full max-w-md" style={{ animation: 'fadeUp 0.5s ease-out forwards' }}>
+
                     {/* Card */}
                     <div className="bg-[#1F1F1F] border border-[#237227] border-opacity-30 rounded-2xl p-8 shadow-2xl">
+
                         {/* Header */}
                         <div className="text-center mb-8">
                             <div className="w-14 h-14 bg-[#237227] bg-opacity-20 rounded-xl flex items-center justify-center mx-auto mb-4">
@@ -157,8 +153,16 @@ const Signup = () => {
                             <p className="text-[#F0FFDF] opacity-60 text-sm">Start your career journey with SkillBridge</p>
                         </div>
 
+                        {/* Firebase-level error banner */}
+                        {firebaseError && (
+                            <div className="mb-4 px-4 py-3 rounded-lg bg-red-900 bg-opacity-30 border border-red-500 border-opacity-50 text-red-400 text-sm">
+                                {firebaseError}
+                            </div>
+                        )}
+
                         {/* Form */}
                         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+
                             {/* Username */}
                             <div>
                                 <label htmlFor="username" className="block text-sm font-medium text-[#F0FFDF] opacity-80 mb-1.5">
@@ -177,15 +181,14 @@ const Signup = () => {
                                         value={formData.username}
                                         onChange={handleChange}
                                         placeholder="e.g. john_doe"
-                                        className={`w-full pl-9 pr-4 py-3 rounded-lg bg-[#2B2A2A] border text-[#F0FFDF] placeholder-[#F0FFDF] placeholder-opacity-30 text-sm focus:outline-none focus:ring-2 focus:ring-[#237227] transition-all ${errors.username
-                                                ? 'border-red-500 border-opacity-80'
-                                                : 'border-[#237227] border-opacity-30 hover:border-opacity-60'
+                                        disabled={submitting}
+                                        className={`w-full pl-9 pr-4 py-3 rounded-lg bg-[#2B2A2A] border text-[#F0FFDF] placeholder-[#F0FFDF] placeholder-opacity-30 text-sm focus:outline-none focus:ring-2 focus:ring-[#237227] transition-all disabled:opacity-50 ${errors.username
+                                            ? 'border-red-500 border-opacity-80'
+                                            : 'border-[#237227] border-opacity-30 hover:border-opacity-60'
                                             }`}
                                     />
                                 </div>
-                                {errors.username && (
-                                    <p className="mt-1.5 text-xs text-red-400">{errors.username}</p>
-                                )}
+                                {errors.username && <p className="mt-1.5 text-xs text-red-400">{errors.username}</p>}
                             </div>
 
                             {/* Password */}
@@ -205,37 +208,25 @@ const Signup = () => {
                                         value={formData.password}
                                         onChange={handleChange}
                                         placeholder="Min 8 characters"
-                                        className={`w-full pl-9 pr-10 py-3 rounded-lg bg-[#2B2A2A] border text-[#F0FFDF] placeholder-[#F0FFDF] placeholder-opacity-30 text-sm focus:outline-none focus:ring-2 focus:ring-[#237227] transition-all ${errors.password
-                                                ? 'border-red-500 border-opacity-80'
-                                                : 'border-[#237227] border-opacity-30 hover:border-opacity-60'
+                                        disabled={submitting}
+                                        className={`w-full pl-9 pr-10 py-3 rounded-lg bg-[#2B2A2A] border text-[#F0FFDF] placeholder-[#F0FFDF] placeholder-opacity-30 text-sm focus:outline-none focus:ring-2 focus:ring-[#237227] transition-all disabled:opacity-50 ${errors.password
+                                            ? 'border-red-500 border-opacity-80'
+                                            : 'border-[#237227] border-opacity-30 hover:border-opacity-60'
                                             }`}
                                     />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
+                                    <button type="button" onClick={() => setShowPassword(!showPassword)}
                                         className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#F0FFDF] opacity-40 hover:opacity-80 transition-opacity"
-                                        tabIndex={-1}
-                                        aria-label={showPassword ? 'Hide password' : 'Show password'}
-                                    >
+                                        tabIndex={-1} aria-label={showPassword ? 'Hide password' : 'Show password'}>
                                         {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                     </button>
                                 </div>
-                                {errors.password && (
-                                    <p className="mt-1.5 text-xs text-red-400">{errors.password}</p>
-                                )}
-
-                                {/* Password strength bar */}
+                                {errors.password && <p className="mt-1.5 text-xs text-red-400">{errors.password}</p>}
                                 {formData.password && (
                                     <div className="mt-2">
                                         <div className="flex gap-1">
                                             {[1, 2, 3, 4].map((i) => (
-                                                <div
-                                                    key={i}
-                                                    className="h-1 flex-1 rounded-full transition-all duration-300"
-                                                    style={{
-                                                        backgroundColor: i <= strength.level ? strength.color : '#3a3a3a',
-                                                    }}
-                                                />
+                                                <div key={i} className="h-1 flex-1 rounded-full transition-all duration-300"
+                                                    style={{ backgroundColor: i <= strength.level ? strength.color : '#3a3a3a' }} />
                                             ))}
                                         </div>
                                         {strength.label && (
@@ -264,26 +255,21 @@ const Signup = () => {
                                         value={formData.confirmPassword}
                                         onChange={handleChange}
                                         placeholder="Re-enter your password"
-                                        className={`w-full pl-9 pr-10 py-3 rounded-lg bg-[#2B2A2A] border text-[#F0FFDF] placeholder-[#F0FFDF] placeholder-opacity-30 text-sm focus:outline-none focus:ring-2 focus:ring-[#237227] transition-all ${errors.confirmPassword
-                                                ? 'border-red-500 border-opacity-80'
-                                                : formData.confirmPassword && formData.password === formData.confirmPassword
-                                                    ? 'border-[#237227] border-opacity-80'
-                                                    : 'border-[#237227] border-opacity-30 hover:border-opacity-60'
+                                        disabled={submitting}
+                                        className={`w-full pl-9 pr-10 py-3 rounded-lg bg-[#2B2A2A] border text-[#F0FFDF] placeholder-[#F0FFDF] placeholder-opacity-30 text-sm focus:outline-none focus:ring-2 focus:ring-[#237227] transition-all disabled:opacity-50 ${errors.confirmPassword
+                                            ? 'border-red-500 border-opacity-80'
+                                            : formData.confirmPassword && formData.password === formData.confirmPassword
+                                                ? 'border-[#237227] border-opacity-80'
+                                                : 'border-[#237227] border-opacity-30 hover:border-opacity-60'
                                             }`}
                                     />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                         className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#F0FFDF] opacity-40 hover:opacity-80 transition-opacity"
-                                        tabIndex={-1}
-                                        aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-                                    >
+                                        tabIndex={-1} aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}>
                                         {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                     </button>
                                 </div>
-                                {errors.confirmPassword && (
-                                    <p className="mt-1.5 text-xs text-red-400">{errors.confirmPassword}</p>
-                                )}
+                                {errors.confirmPassword && <p className="mt-1.5 text-xs text-red-400">{errors.confirmPassword}</p>}
                                 {formData.confirmPassword && formData.password === formData.confirmPassword && !errors.confirmPassword && (
                                     <p className="mt-1.5 text-xs text-[#237227] flex items-center gap-1">
                                         <CheckCircle2 size={12} /> Passwords match
@@ -295,19 +281,27 @@ const Signup = () => {
                             <button
                                 id="signup-submit-btn"
                                 type="submit"
-                                className="w-full bg-[#237227] text-[#F0FFDF] py-3 rounded-lg font-bold hover:bg-opacity-90 active:scale-[0.98] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group mt-2"
+                                disabled={submitting}
+                                className="w-full bg-[#237227] text-[#F0FFDF] py-3 rounded-lg font-bold hover:bg-opacity-90 active:scale-[0.98] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group mt-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
                             >
-                                Create Account
-                                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                {submitting ? (
+                                    <>
+                                        <Loader2 size={18} className="animate-spin" />
+                                        Creating Account…
+                                    </>
+                                ) : (
+                                    <>
+                                        Create Account
+                                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                    </>
+                                )}
                             </button>
                         </form>
 
                         {/* Footer note */}
                         <p className="text-center text-xs text-[#F0FFDF] opacity-40 mt-6">
                             Already have an account?{' '}
-                            <span className="text-[#237227] opacity-100 cursor-not-allowed" title="Login coming soon">
-                                Login
-                            </span>{' '}
+                            <span className="text-[#237227] opacity-100 cursor-not-allowed" title="Login coming soon">Login</span>{' '}
                             <span>(coming soon)</span>
                         </p>
                     </div>
@@ -315,10 +309,7 @@ const Signup = () => {
             </div>
 
             <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(24px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes blob {
           0%, 100% { transform: translate(0, 0) scale(1); }
           33%  { transform: translate(20px, -20px) scale(1.05); }
