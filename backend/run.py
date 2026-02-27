@@ -430,6 +430,157 @@ def drop_db():
 # ----------------------------------------
 
 # ----------------------------------------
+# Career Matching Route
+# ----------------------------------------
+@app.route('/api/career/match', methods=['POST', 'OPTIONS'])
+def career_match():
+    """
+    POST /api/career/match
+    Body: {
+      "skills": ["python", "sql"],
+      "interests": ["data science", "machine learning"],
+      "test_scores": { "python": 0.67, "sql": 0.80 }
+    }
+    Returns top-3 matched roles with step-by-step calculation.
+    """
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    body        = request.get_json(force=True) or {}
+    user_skills = [s.lower().strip() for s in body.get('skills', [])]
+    interests   = [i.lower().strip() for i in body.get('interests', [])]
+    test_scores = {k.lower(): float(v) for k, v in body.get('test_scores', {}).items()}
+
+    # Load benchmark
+    benchmark_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'skill_gap_benchmark.json'
+    )
+    try:
+        with open(benchmark_file, 'r', encoding='utf-8') as f:
+            benchmarks = json.load(f)
+    except FileNotFoundError:
+        return jsonify({'error': 'Benchmark file not found.'}), 404
+
+    # Load JobInfo for descriptions and salaries
+    job_info_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'JobInfo.json'
+    )
+    job_info_map = {}
+    try:
+        with open(job_info_file, 'r', encoding='utf-8') as f:
+            job_data = json.load(f)
+        for r in job_data.get('roles', []):
+            job_info_map[r['title'].lower().replace(' ', '')] = r
+    except Exception:
+        pass
+
+    # ── Weights (must sum to 1.0) ─────────────────────────────────────────────
+    W_TEST     = 0.45
+    W_SKILL    = 0.35
+    W_INTEREST = 0.20
+
+    results = []
+
+    for bench in benchmarks:
+        role_name   = bench['role']
+        role_domain = bench['domain'].lower()
+        bench_skills= {k.lower(): float(v) for k, v in bench['skills'].items()}
+
+        # ── STEP 1: Test Alignment ─────────────────────────────────────────────
+        # contribution = min(user_score, benchmark_weight) for each matched skill
+        # test_alignment = Σ contributions / Σ benchmark_weights
+        test_steps = []
+        sum_contributions = 0.0
+        sum_bench_weights = sum(bench_skills.values())
+        for skill, bw in bench_skills.items():
+            us = test_scores.get(skill, 0.0)
+            contribution = round(min(us, bw), 4)
+            sum_contributions += contribution
+            test_steps.append({
+                'skill': skill,
+                'user_score': round(us, 4),
+                'benchmark':  round(bw, 4),
+                'contribution': contribution,
+                'formula': f"min({round(us,2)}, {bw}) = {contribution}",
+            })
+        test_alignment = round(sum_contributions / sum_bench_weights, 4) if sum_bench_weights else 0.0
+
+        # ── STEP 2: Skill Overlap ──────────────────────────────────────────────
+        # overlap = |user_skills ∩ role_required_skills| / |role_required_skills|
+        role_skill_set = set(bench_skills.keys())
+        user_skill_set = set(user_skills)
+        # also partial-match (e.g. "machine learning" in "scikit-learn")
+        matched_skills = set()
+        for us in user_skill_set:
+            for rs in role_skill_set:
+                if us in rs or rs in us or us == rs:
+                    matched_skills.add(rs)
+        unmatched_skills = role_skill_set - matched_skills
+        skill_overlap = round(len(matched_skills) / len(role_skill_set), 4) if role_skill_set else 0.0
+
+        # ── STEP 3: Interest Match ─────────────────────────────────────────────
+        interest_score = 0.2   # default: no match
+        interest_detail = 'No interest match'
+        for interest in interests:
+            if interest == role_domain:
+                interest_score = 1.0
+                interest_detail = f"Exact match: '{interest}' == '{role_domain}'"
+                break
+            elif interest in role_domain or role_domain in interest:
+                if interest_score < 0.6:
+                    interest_score = 0.6
+                    interest_detail = f"Partial match: '{interest}' ↔ '{role_domain}'"
+        interest_score = round(interest_score, 4)
+
+        # ── STEP 4: Weighted Career Score ─────────────────────────────────────
+        weighted_test     = round(W_TEST     * test_alignment,  4)
+        weighted_skill    = round(W_SKILL    * skill_overlap,   4)
+        weighted_interest = round(W_INTEREST * interest_score,  4)
+        career_score      = round(weighted_test + weighted_skill + weighted_interest, 4)
+        match_pct         = round(career_score * 100, 1)
+
+        # Job info lookup
+        role_key = role_name.lower().replace(' ', '')
+        job      = job_info_map.get(role_key, {})
+
+        results.append({
+            'role':   role_name,
+            'domain': role_domain,
+            'match_pct': match_pct,
+            'career_score': career_score,
+            'breakdown': {
+                'test_alignment':  { 'score': test_alignment,  'weighted': weighted_test,     'weight': W_TEST,     'formula': f"Σ min(user,bench) / Σ bench_weights = {round(sum_contributions,4)} / {round(sum_bench_weights,4)} = {test_alignment}" },
+                'skill_overlap':   { 'score': skill_overlap,   'weighted': weighted_skill,    'weight': W_SKILL,    'formula': f"|matched| / |role_skills| = {len(matched_skills)} / {len(role_skill_set)} = {skill_overlap}" },
+                'interest_score':  { 'score': interest_score,  'weighted': weighted_interest, 'weight': W_INTEREST, 'formula': interest_detail },
+                'final':           { 'formula': f"({W_TEST}×{test_alignment}) + ({W_SKILL}×{skill_overlap}) + ({W_INTEREST}×{interest_score}) = {career_score}" },
+            },
+            'test_steps':      test_steps,
+            'matched_skills':  sorted(matched_skills),
+            'missing_skills':  sorted(unmatched_skills),
+            'description':     job.get('description', ''),
+            'core_skills':     job.get('core_skills', list(bench_skills.keys())[:5]),
+            'salary_india':    job.get('approx_salary', {}).get('India', {}),
+        })
+
+    # Sort and return top 3
+    results.sort(key=lambda x: x['career_score'], reverse=True)
+    top3 = results[:3]
+
+    return jsonify({
+        'top_matches': top3,
+        'all_scores':  [{'role': r['role'], 'match_pct': r['match_pct']} for r in results],
+        'weights_used': { 'test_alignment': W_TEST, 'skill_overlap': W_SKILL, 'interest_match': W_INTEREST },
+        'formula_legend': {
+            'test_alignment':  f"test_alignment  = Σ min(user_score, benchmark) / Σ benchmark   (weight: {int(W_TEST*100)}%)",
+            'skill_overlap':   f"skill_overlap   = |your skills ∩ role skills| / |role skills|  (weight: {int(W_SKILL*100)}%)",
+            'interest_score':  f"interest_score  = 1.0 exact | 0.6 partial | 0.2 none           (weight: {int(W_INTEREST*100)}%)",
+            'career_score':    "career_score    = 0.45×test + 0.35×skill + 0.20×interest",
+            'match_pct':       "match_pct       = career_score × 100",
+        },
+    }), 200
+
+
+# ----------------------------------------
 # SWOT Analysis Route (Gemini)
 # ----------------------------------------
 @app.route('/api/swot/analyze', methods=['POST', 'OPTIONS'])
