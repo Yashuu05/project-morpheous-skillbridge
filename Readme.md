@@ -41,6 +41,43 @@
 
 ---
 
+### 1. landing page
+
+![landing page preview](landing.png)
+
+---
+
+![login pag preview](login.png)
+
+---
+
+![signup page preview](signup.png)
+
+---
+
+![dashboard preview](dashboard.png)
+
+---
+
+![resume preview](resume.png)
+
+---
+
+![skill gap preview](skill_gap.png)
+
+---
+
+![assessment preview](assessment.png)
+
+---
+
+![career match preview](career_match.png)
+
+---
+
+![roadmap preview](roadmap.png)
+
+---
 ### Getting Started
 
 - Prerequisites
