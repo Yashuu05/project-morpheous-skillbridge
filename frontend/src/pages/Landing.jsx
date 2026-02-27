@@ -139,24 +139,16 @@ const SkillBridgeLanding = () => {
               </div>
             </div>
 
-            {/* Right Visual */}
             <div className="relative hidden md:block">
               <div className="animate-float">
-                <div className="bg-gradient-to-br from-[#237227] to-[#1a5a1a] rounded-2xl p-8 border border-[#237227] border-opacity-30">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 bg-[#F0FFDF] rounded-full animate-pulse" />
-                      <div className="flex-1 h-2 bg-[#237227] bg-opacity-50 rounded" />
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 bg-[#F0FFDF] rounded-full" />
-                      <div className="flex-1 h-2 bg-[#237227] bg-opacity-50 rounded" />
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 bg-[#F0FFDF] rounded-full animate-pulse" />
-                      <div className="flex-1 h-2 bg-[#237227] bg-opacity-50 rounded" />
-                    </div>
-                  </div>
+                <div className="relative">
+                  <img
+                    src="/skill_image.jpg"
+                    alt="Skill Development Visualization"
+                    className="rounded-2xl shadow-2xl border border-[#237227] border-opacity-30 w-full max-w-md mx-auto"
+                  />
+                  {/* Subtle glow effect behind the image */}
+                  <div className="absolute -inset-4 bg-[#237227] opacity-20 blur-2xl rounded-full -z-10" />
                 </div>
               </div>
             </div>
