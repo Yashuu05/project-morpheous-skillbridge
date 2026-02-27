@@ -1,9 +1,10 @@
-import React, { useState, useRef } from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar.jsx';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
+import { signOut } from 'firebase/auth';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell
 } from 'recharts';
@@ -168,12 +169,39 @@ function detectDomain(interests = []) {
 
 // ─── Assessment Tab ───────────────────────────────────────────────────────────
 function AssessmentTab({ user }) {
+    const navigate = useNavigate();
+
     const [testState, setTestState] = useState('idle'); // idle|loading|testing|results
     const [questions, setQuestions] = useState([]);
     const [current, setCurrent] = useState(0);
-    const [answers, setAnswers] = useState({});   // { [qIndex]: selectedOption }
-    const [results, setResults] = useState(null); // { scores:{}, total_score, savedOk }
+    const [answers, setAnswers] = useState({});
+    const [results, setResults] = useState(null);
     const [error, setError] = useState('');
+
+    // ── Anti-cheating ─────────────────────────────────────────────────────────
+    const [switchCount, setSwitchCount] = useState(0);
+    const [showWarning, setShowWarning] = useState(false);
+    const switchCountRef = useRef(0); // ref so listener closure always has latest value
+
+    useEffect(() => {
+        if (testState !== 'testing') return;
+
+        const handleVisibility = () => {
+            if (document.visibilityState === 'hidden') {
+                switchCountRef.current += 1;
+                setSwitchCount(switchCountRef.current);
+                setShowWarning(true);
+
+                if (switchCountRef.current >= 3) {
+                    // 3rd violation → sign out immediately
+                    signOut(auth).then(() => navigate('/login'));
+                }
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibility);
+        return () => document.removeEventListener('visibilitychange', handleVisibility);
+    }, [testState, navigate]);
 
     const domain = detectDomain(user?.interests);
     const skills = (user?.skills || []).join(',');
@@ -272,7 +300,77 @@ function AssessmentTab({ user }) {
         };
 
         return (
-            <div style={{ maxWidth: 680, margin: '0 auto', padding: '24px 16px' }}>
+            <div style={{ maxWidth: 680, margin: '0 auto', padding: '24px 16px', position: 'relative' }}>
+
+                {/* ── Anti-cheat warning overlay ── */}
+                {showWarning && (
+                    <div style={{
+                        position: 'fixed', inset: 0, zIndex: 9999,
+                        background: 'rgba(0,0,0,0.82)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                        <div style={{
+                            background: switchCount >= 3 ? '#1a0a0a' : switchCount >= 2 ? '#1a1000' : '#0a0f1a',
+                            border: `2px solid ${switchCount >= 3 ? '#ef4444' : switchCount >= 2 ? '#f59e0b' : '#f59e0b'}`,
+                            borderRadius: 16, padding: '36px 40px', maxWidth: 440, textAlign: 'center',
+                            boxShadow: `0 0 40px ${switchCount >= 3 ? 'rgba(239,68,68,0.35)' : 'rgba(245,158,11,0.3)'}`,
+                        }}>
+                            {/* Icon */}
+                            <div style={{ fontSize: 48, marginBottom: 12 }}>
+                                {switchCount >= 3 ? '🚫' : '⚠️'}
+                            </div>
+
+                            {/* Title */}
+                            <h2 style={{ color: switchCount >= 3 ? '#ef4444' : '#fbbf24', fontSize: 20, fontWeight: 800, marginBottom: 10 }}>
+                                {switchCount >= 3 ? 'Test Terminated' : switchCount >= 2 ? 'Final Warning!' : 'Warning!'}
+                            </h2>
+
+                            {/* Violation counter */}
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 16 }}>
+                                {[1, 2, 3].map(n => (
+                                    <div key={n} style={{
+                                        width: 32, height: 32, borderRadius: '50%', display: 'flex',
+                                        alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14,
+                                        background: n <= switchCount ? (switchCount >= 3 ? '#ef4444' : '#f59e0b') : 'rgba(255,255,255,0.08)',
+                                        color: n <= switchCount ? '#fff' : 'rgba(255,255,255,0.25)',
+                                    }}>{n}</div>
+                                ))}
+                            </div>
+
+                            {/* Message */}
+                            <p style={{ color: 'rgba(240,255,223,0.75)', fontSize: 14, lineHeight: 1.6, marginBottom: 24 }}>
+                                {switchCount >= 3
+                                    ? 'You switched tabs 3 times. This is against test rules. You are now being logged out.'
+                                    : `Tab switch detected (${switchCount}/2 warnings). Switching tabs during an assessment is not allowed. A third violation will log you out automatically.`
+                                }
+                            </p>
+
+                            {/* Action */}
+                            {switchCount < 3 ? (
+                                <button onClick={() => setShowWarning(false)} style={{
+                                    background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff',
+                                    border: 'none', borderRadius: 10, padding: '11px 28px',
+                                    fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                                }}>
+                                    I Understand — Continue Test
+                                </button>
+                            ) : (
+                                <div style={{ color: '#ef4444', fontSize: 13, fontWeight: 600 }}>
+                                    Logging you out…
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* violation badge in header */}
+                {switchCount > 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, padding: '6px 12px', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 8, fontSize: 12 }}>
+                        <span>⚠️</span>
+                        <span style={{ color: '#fbbf24' }}>Tab-switch violations: <strong>{switchCount}/2</strong> warnings used</span>
+                    </div>
+                )}
+
                 {/* Progress bar */}
                 <div style={{ marginBottom: 20 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'rgba(240,255,223,0.6)' }}>
