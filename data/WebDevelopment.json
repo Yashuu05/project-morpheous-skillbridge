@@ -79,5 +79,209 @@
     "question": "Which strategy ensures high availability in distributed backend systems?",
     "options": ["Single server", "Load balancing with replication", "Manual restart", "Local database only"],
     "answer": "Load balancing with replication"
+  },
+  {
+    "domain": "web development",
+    "language": "devops",
+    "difficulty": "easy",
+    "question": "What is the primary purpose of CI/CD in web applications?",
+    "options": ["Manual deployment", "Automated testing and deployment", "Disabling tests", "Direct production edits"],
+    "answer": "Automated testing and deployment"
+  },
+  {
+    "domain": "web development",
+    "language": "devops",
+    "difficulty": "medium",
+    "question": "Which tool is commonly used for containerizing web applications?",
+    "options": ["Docker", "Excel", "Photoshop", "Postman"],
+    "answer": "Docker"
+  },
+  {
+    "domain": "web development",
+    "language": "devops",
+    "difficulty": "medium",
+    "question": "Which practice reduces downtime during deployments?",
+    "options": ["Manual restart", "Blue-Green deployment", "Direct DB edits", "Stopping traffic"],
+    "answer": "Blue-Green deployment"
+  },
+  {
+    "domain": "web development",
+    "language": "devops",
+    "difficulty": "advanced",
+    "question": "Which orchestration tool manages containerized web services at scale?",
+    "options": ["Kubernetes", "Notepad", "FTP", "HTML"],
+    "answer": "Kubernetes"
+  },
+  {
+    "domain": "web development",
+    "language": "devops",
+    "difficulty": "advanced",
+    "question": "What is the best strategy for handling traffic spikes in production systems?",
+    "options": ["Vertical scaling only", "Auto-scaling groups", "Manual restart", "Disable logging"],
+    "answer": "Auto-scaling groups"
+  },
+
+  {
+    "domain": "web development",
+    "language": "testing",
+    "difficulty": "easy",
+    "question": "What is the purpose of unit testing?",
+    "options": ["Test UI color", "Test individual components", "Deploy app", "Increase traffic"],
+    "answer": "Test individual components"
+  },
+  {
+    "domain": "web development",
+    "language": "testing",
+    "difficulty": "medium",
+    "question": "Which testing approach validates API endpoints?",
+    "options": ["Load testing only", "Integration testing", "Manual guessing", "CSS testing"],
+    "answer": "Integration testing"
+  },
+  {
+    "domain": "web development",
+    "language": "testing",
+    "difficulty": "medium",
+    "question": "Which tool is widely used for end-to-end testing in web apps?",
+    "options": ["Cypress", "MS Paint", "Git Bash", "Figma"],
+    "answer": "Cypress"
+  },
+  {
+    "domain": "web development",
+    "language": "testing",
+    "difficulty": "advanced",
+    "question": "What ensures reliability before production deployment?",
+    "options": ["Skipping tests", "Automated regression testing", "Manual commit", "Direct merge to main"],
+    "answer": "Automated regression testing"
+  },
+  {
+    "domain": "web development",
+    "language": "testing",
+    "difficulty": "advanced",
+    "question": "Which testing type evaluates system performance under heavy traffic?",
+    "options": ["Unit testing", "Load testing", "UI testing", "Static testing"],
+    "answer": "Load testing"
+  },
+
+  {
+    "domain": "web development",
+    "language": "security",
+    "difficulty": "easy",
+    "question": "Which protocol secures data transmission over the web?",
+    "options": ["HTTP", "HTTPS", "FTP", "SMTP"],
+    "answer": "HTTPS"
+  },
+  {
+    "domain": "web development",
+    "language": "security",
+    "difficulty": "medium",
+    "question": "Which mechanism prevents cross-site scripting (XSS)?",
+    "options": ["Input sanitization", "Hardcoded passwords", "Open CORS", "Disable validation"],
+    "answer": "Input sanitization"
+  },
+  {
+    "domain": "web development",
+    "language": "security",
+    "difficulty": "medium",
+    "question": "Which strategy protects APIs from brute-force attacks?",
+    "options": ["Rate limiting", "Open access", "Disable logging", "Manual reset"],
+    "answer": "Rate limiting"
+  },
+  {
+    "domain": "web development",
+    "language": "security",
+    "difficulty": "advanced",
+    "question": "What is the most secure way to store user passwords?",
+    "options": ["Plain text", "Base64 encoding", "Hashed with bcrypt", "Local storage"],
+    "answer": "Hashed with bcrypt"
+  },
+  {
+    "domain": "web development",
+    "language": "security",
+    "difficulty": "advanced",
+    "question": "Which practice reduces attack surface in production?",
+    "options": ["Open ports", "Principle of least privilege", "Disable firewall", "Public database"],
+    "answer": "Principle of least privilege"
+  },
+
+  {
+    "domain": "web development",
+    "language": "cloud architecture",
+    "difficulty": "easy",
+    "question": "What is the main benefit of cloud hosting for web apps?",
+    "options": ["Manual scaling", "Elastic scalability", "Local-only access", "No monitoring"],
+    "answer": "Elastic scalability"
+  },
+  {
+    "domain": "web development",
+    "language": "cloud architecture",
+    "difficulty": "medium",
+    "question": "Which service improves global content delivery performance?",
+    "options": ["CDN", "FTP", "SMTP", "Local cache only"],
+    "answer": "CDN"
+  },
+  {
+    "domain": "web development",
+    "language": "cloud architecture",
+    "difficulty": "medium",
+    "question": "Which architecture pattern improves resilience?",
+    "options": ["Single region", "Multi-region deployment", "Single server", "Local database"],
+    "answer": "Multi-region deployment"
+  },
+  {
+    "domain": "web development",
+    "language": "cloud architecture",
+    "difficulty": "advanced",
+    "question": "Which pattern enables loosely coupled distributed services?",
+    "options": ["Monolith", "Event-driven architecture", "Single-thread system", "Hardcoded API"],
+    "answer": "Event-driven architecture"
+  },
+  {
+    "domain": "web development",
+    "language": "cloud architecture",
+    "difficulty": "advanced",
+    "question": "Which solution ensures high availability for databases?",
+    "options": ["Single instance", "Read replicas and failover", "Manual backup", "Disable logging"],
+    "answer": "Read replicas and failover"
+  },
+
+  {
+    "domain": "web development",
+    "language": "communication",
+    "difficulty": "easy",
+    "question": "How should a developer handle unclear requirements?",
+    "options": ["Assume details", "Seek clarification", "Ignore", "Delay project"],
+    "answer": "Seek clarification"
+  },
+  {
+    "domain": "web development",
+    "language": "communication",
+    "difficulty": "medium",
+    "question": "How should production incidents be communicated?",
+    "options": ["Hide issue", "Transparent status updates", "Blame team", "Ignore"],
+    "answer": "Transparent status updates"
+  },
+  {
+    "domain": "web development",
+    "language": "communication",
+    "difficulty": "medium",
+    "question": "What ensures alignment with cross-functional teams?",
+    "options": ["Independent coding", "Regular sprint meetings", "Avoid meetings", "Private planning"],
+    "answer": "Regular sprint meetings"
+  },
+  {
+    "domain": "web development",
+    "language": "communication",
+    "difficulty": "advanced",
+    "question": "How should a senior engineer handle architectural disagreements?",
+    "options": ["Force decision", "Data-driven discussion", "Escalate instantly", "Ignore"],
+    "answer": "Data-driven discussion"
+  },
+  {
+    "domain": "web development",
+    "language": "communication",
+    "difficulty": "advanced",
+    "question": "What builds trust during major refactoring?",
+    "options": ["Silent changes", "Clear documentation and updates", "No tests", "Random commits"],
+    "answer": "Clear documentation and updates"
   }
 ]

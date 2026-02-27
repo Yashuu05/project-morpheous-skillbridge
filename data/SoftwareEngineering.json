@@ -1,42 +1,652 @@
- [
- {
-    "domain": "software engineering",
-    "language": "system design",
-    "difficulty": "easy",
-    "question": "Which architecture is best for independent service scaling?",
-    "options": ["Monolith", "Microservices", "Single-tier", "Local server"],
-    "answer": "Microservices"
-  },
-  {
-    "domain": "software engineering",
-    "language": "system design",
-    "difficulty": "medium",
-    "question": "Which database improves horizontal scalability?",
-    "options": ["Relational DB only", "NoSQL distributed DB", "Local SQLite", "Excel"],
-    "answer": "NoSQL distributed DB"
-  },
-  {
-    "domain": "software engineering",
-    "language": "system design",
-    "difficulty": "advanced",
-    "question": "Which technique ensures fault tolerance?",
-    "options": ["Single server", "Redundancy and replication", "Manual backup", "Local storage"],
-    "answer": "Redundancy and replication"
-  },
-  {
-    "domain": "software engineering",
-    "language": "system design",
-    "difficulty": "medium",
-    "question": "Which pattern supports asynchronous processing?",
-    "options": ["Blocking calls", "Event-driven architecture", "Sequential execution", "Single thread"],
-    "answer": "Event-driven architecture"
-  },
-  {
-    "domain": "software engineering",
-    "language": "system design",
-    "difficulty": "advanced",
-    "question": "Which method minimizes downtime during deployment?",
-    "options": ["Manual restart", "Blue-Green deployment", "Single instance update", "Shutdown first"],
-    "answer": "Blue-Green deployment"
-  }
+[
+    {
+        "domain": "software engineering",
+        "language": "data structures and algorithms",
+        "difficulty": "easy",
+        "question": "Which data structure follows the Last-In-First-Out (LIFO) principle?",
+        "options": [
+            "Queue",
+            "Stack",
+            "Linked List",
+            "Tree"
+        ],
+        "answer": "Stack"
+    },
+    {
+        "domain": "software engineering",
+        "language": "data structures and algorithms",
+        "difficulty": "easy",
+        "question": "What is the time complexity of binary search on a sorted array?",
+        "options": [
+            "O(n)",
+            "O(n²)",
+            "O(log n)",
+            "O(1)"
+        ],
+        "answer": "O(log n)"
+    },
+    {
+        "domain": "software engineering",
+        "language": "data structures and algorithms",
+        "difficulty": "medium",
+        "question": "Which algorithm is most efficient for finding the shortest path in a weighted graph with non-negative edges?",
+        "options": [
+            "BFS",
+            "DFS",
+            "Dijkstra's Algorithm",
+            "Bellman-Ford"
+        ],
+        "answer": "Dijkstra's Algorithm"
+    },
+    {
+        "domain": "software engineering",
+        "language": "data structures and algorithms",
+        "difficulty": "medium",
+        "question": "Which sorting algorithm has the best average-case time complexity?",
+        "options": [
+            "Bubble Sort",
+            "Insertion Sort",
+            "Quick Sort",
+            "Selection Sort"
+        ],
+        "answer": "Quick Sort"
+    },
+    {
+        "domain": "software engineering",
+        "language": "data structures and algorithms",
+        "difficulty": "advanced",
+        "question": "Which data structure is best suited for implementing a priority queue with O(log n) insertions and deletions?",
+        "options": [
+            "Array",
+            "Linked List",
+            "Binary Heap",
+            "Hash Table"
+        ],
+        "answer": "Binary Heap"
+    },
+    {
+        "domain": "software engineering",
+        "language": "object-oriented programming",
+        "difficulty": "easy",
+        "question": "Which OOP principle hides internal implementation details and exposes only necessary functionality?",
+        "options": [
+            "Inheritance",
+            "Polymorphism",
+            "Encapsulation",
+            "Abstraction"
+        ],
+        "answer": "Encapsulation"
+    },
+    {
+        "domain": "software engineering",
+        "language": "object-oriented programming",
+        "difficulty": "easy",
+        "question": "Which OOP concept allows a child class to inherit properties and methods from a parent class?",
+        "options": [
+            "Polymorphism",
+            "Inheritance",
+            "Encapsulation",
+            "Composition"
+        ],
+        "answer": "Inheritance"
+    },
+    {
+        "domain": "software engineering",
+        "language": "object-oriented programming",
+        "difficulty": "medium",
+        "question": "Which design principle states that a class should have only one reason to change?",
+        "options": [
+            "Open/Closed Principle",
+            "Single Responsibility Principle",
+            "Liskov Substitution",
+            "Dependency Inversion"
+        ],
+        "answer": "Single Responsibility Principle"
+    },
+    {
+        "domain": "software engineering",
+        "language": "object-oriented programming",
+        "difficulty": "medium",
+        "question": "Which OOP concept allows the same method name to behave differently based on the object type?",
+        "options": [
+            "Encapsulation",
+            "Inheritance",
+            "Polymorphism",
+            "Abstraction"
+        ],
+        "answer": "Polymorphism"
+    },
+    {
+        "domain": "software engineering",
+        "language": "object-oriented programming",
+        "difficulty": "advanced",
+        "question": "Which SOLID principle states that high-level modules should not depend on low-level modules, but both should depend on abstractions?",
+        "options": [
+            "Single Responsibility",
+            "Open/Closed",
+            "Liskov Substitution",
+            "Dependency Inversion Principle"
+        ],
+        "answer": "Dependency Inversion Principle"
+    },
+    {
+        "domain": "software engineering",
+        "language": "system design",
+        "difficulty": "easy",
+        "question": "Which architecture is best for independent service scaling?",
+        "options": [
+            "Monolith",
+            "Microservices",
+            "Single-tier",
+            "Local server"
+        ],
+        "answer": "Microservices"
+    },
+    {
+        "domain": "software engineering",
+        "language": "system design",
+        "difficulty": "medium",
+        "question": "Which database improves horizontal scalability?",
+        "options": [
+            "Relational DB only",
+            "NoSQL distributed DB",
+            "Local SQLite",
+            "Excel"
+        ],
+        "answer": "NoSQL distributed DB"
+    },
+    {
+        "domain": "software engineering",
+        "language": "system design",
+        "difficulty": "advanced",
+        "question": "Which technique ensures fault tolerance?",
+        "options": [
+            "Single server",
+            "Redundancy and replication",
+            "Manual backup",
+            "Local storage"
+        ],
+        "answer": "Redundancy and replication"
+    },
+    {
+        "domain": "software engineering",
+        "language": "system design",
+        "difficulty": "medium",
+        "question": "Which pattern supports asynchronous processing?",
+        "options": [
+            "Blocking calls",
+            "Event-driven architecture",
+            "Sequential execution",
+            "Single thread"
+        ],
+        "answer": "Event-driven architecture"
+    },
+    {
+        "domain": "software engineering",
+        "language": "system design",
+        "difficulty": "advanced",
+        "question": "Which method minimizes downtime during deployment?",
+        "options": [
+            "Manual restart",
+            "Blue-Green deployment",
+            "Single instance update",
+            "Shutdown first"
+        ],
+        "answer": "Blue-Green deployment"
+    },
+    {
+        "domain": "software engineering",
+        "language": "git",
+        "difficulty": "easy",
+        "question": "Which Git command creates a new branch and switches to it immediately?",
+        "options": [
+            "git branch new-branch",
+            "git checkout -b new-branch",
+            "git switch new-branch",
+            "git create new-branch"
+        ],
+        "answer": "git checkout -b new-branch"
+    },
+    {
+        "domain": "software engineering",
+        "language": "git",
+        "difficulty": "easy",
+        "question": "Which Git command stages all changed files for the next commit?",
+        "options": [
+            "git commit -m",
+            "git push",
+            "git add .",
+            "git stash"
+        ],
+        "answer": "git add ."
+    },
+    {
+        "domain": "software engineering",
+        "language": "git",
+        "difficulty": "medium",
+        "question": "Which Git strategy combines all commits from a feature branch into a single commit before merging?",
+        "options": [
+            "git merge",
+            "git rebase",
+            "git squash merge",
+            "git cherry-pick"
+        ],
+        "answer": "git squash merge"
+    },
+    {
+        "domain": "software engineering",
+        "language": "git",
+        "difficulty": "medium",
+        "question": "Which Git command temporarily saves uncommitted changes so you can switch branches?",
+        "options": [
+            "git save",
+            "git stash",
+            "git shelve",
+            "git pause"
+        ],
+        "answer": "git stash"
+    },
+    {
+        "domain": "software engineering",
+        "language": "git",
+        "difficulty": "advanced",
+        "question": "Which Git workflow is best suited for teams practicing continuous delivery with frequent small releases?",
+        "options": [
+            "Git Flow",
+            "Trunk-based development",
+            "Feature branching only",
+            "No branching"
+        ],
+        "answer": "Trunk-based development"
+    },
+    {
+        "domain": "software engineering",
+        "language": "testing",
+        "difficulty": "easy",
+        "question": "Which type of testing verifies individual functions or methods in isolation?",
+        "options": [
+            "Integration testing",
+            "End-to-end testing",
+            "Unit testing",
+            "Load testing"
+        ],
+        "answer": "Unit testing"
+    },
+    {
+        "domain": "software engineering",
+        "language": "testing",
+        "difficulty": "easy",
+        "question": "What does TDD stand for?",
+        "options": [
+            "Test-Driven Design",
+            "Test-Driven Development",
+            "Technical Design Document",
+            "Test Debug Deploy"
+        ],
+        "answer": "Test-Driven Development"
+    },
+    {
+        "domain": "software engineering",
+        "language": "testing",
+        "difficulty": "medium",
+        "question": "Which practice involves writing tests before writing the actual implementation code?",
+        "options": [
+            "BDD",
+            "TDD",
+            "Code review",
+            "Static analysis"
+        ],
+        "answer": "TDD"
+    },
+    {
+        "domain": "software engineering",
+        "language": "testing",
+        "difficulty": "medium",
+        "question": "Which type of testing simulates real user interactions across the entire application stack?",
+        "options": [
+            "Unit testing",
+            "Integration testing",
+            "End-to-end testing",
+            "Smoke testing"
+        ],
+        "answer": "End-to-end testing"
+    },
+    {
+        "domain": "software engineering",
+        "language": "testing",
+        "difficulty": "advanced",
+        "question": "Which metric measures the percentage of code executed during testing?",
+        "options": [
+            "Bug density",
+            "Code coverage",
+            "Cyclomatic complexity",
+            "Test velocity"
+        ],
+        "answer": "Code coverage"
+    },
+    {
+        "domain": "software engineering",
+        "language": "rest api design",
+        "difficulty": "easy",
+        "question": "Which HTTP method is used to retrieve a resource without modifying it?",
+        "options": [
+            "POST",
+            "PUT",
+            "GET",
+            "DELETE"
+        ],
+        "answer": "GET"
+    },
+    {
+        "domain": "software engineering",
+        "language": "rest api design",
+        "difficulty": "easy",
+        "question": "Which HTTP status code indicates a successfully created resource?",
+        "options": [
+            "200 OK",
+            "204 No Content",
+            "201 Created",
+            "400 Bad Request"
+        ],
+        "answer": "201 Created"
+    },
+    {
+        "domain": "software engineering",
+        "language": "rest api design",
+        "difficulty": "medium",
+        "question": "Which REST API design principle ensures the server does not store client session state?",
+        "options": [
+            "Cacheability",
+            "Statelessness",
+            "Uniform Interface",
+            "Layered System"
+        ],
+        "answer": "Statelessness"
+    },
+    {
+        "domain": "software engineering",
+        "language": "rest api design",
+        "difficulty": "medium",
+        "question": "Which approach is used to version a REST API without breaking existing clients?",
+        "options": [
+            "Removing old endpoints",
+            "URL versioning (e.g., /api/v2/)",
+            "Changing all response formats",
+            "Disabling old APIs immediately"
+        ],
+        "answer": "URL versioning (e.g., /api/v2/)"
+    },
+    {
+        "domain": "software engineering",
+        "language": "rest api design",
+        "difficulty": "advanced",
+        "question": "Which strategy improves REST API performance for frequently accessed, rarely changed data?",
+        "options": [
+            "Disabling responses",
+            "Response caching with ETag headers",
+            "Increasing server threads",
+            "Removing pagination"
+        ],
+        "answer": "Response caching with ETag headers"
+    },
+    {
+        "domain": "software engineering",
+        "language": "databases",
+        "difficulty": "easy",
+        "question": "Which SQL constraint ensures a column cannot have duplicate values?",
+        "options": [
+            "PRIMARY KEY",
+            "NOT NULL",
+            "UNIQUE",
+            "FOREIGN KEY"
+        ],
+        "answer": "UNIQUE"
+    },
+    {
+        "domain": "software engineering",
+        "language": "databases",
+        "difficulty": "easy",
+        "question": "Which database type stores data in collections of JSON-like documents?",
+        "options": [
+            "Relational DB",
+            "Graph DB",
+            "Document DB (NoSQL)",
+            "Time-series DB"
+        ],
+        "answer": "Document DB (NoSQL)"
+    },
+    {
+        "domain": "software engineering",
+        "language": "databases",
+        "difficulty": "medium",
+        "question": "Which database normalization form eliminates transitive dependencies?",
+        "options": [
+            "1NF",
+            "2NF",
+            "3NF",
+            "BCNF"
+        ],
+        "answer": "3NF"
+    },
+    {
+        "domain": "software engineering",
+        "language": "databases",
+        "difficulty": "medium",
+        "question": "Which indexing approach speeds up read queries on large database tables?",
+        "options": [
+            "Removing all indexes",
+            "B-Tree index",
+            "Full table scan",
+            "Disabling caching"
+        ],
+        "answer": "B-Tree index"
+    },
+    {
+        "domain": "software engineering",
+        "language": "databases",
+        "difficulty": "advanced",
+        "question": "Which concept ensures data integrity in multi-step database operations by grouping them as a single unit?",
+        "options": [
+            "Sharding",
+            "Replication",
+            "ACID Transactions",
+            "Indexing"
+        ],
+        "answer": "ACID Transactions"
+    },
+    {
+        "domain": "software engineering",
+        "language": "ci/cd",
+        "difficulty": "easy",
+        "question": "What does CI stand for in software development?",
+        "options": [
+            "Continuous Integration",
+            "Code Inspection",
+            "Configuration Interface",
+            "Component Isolation"
+        ],
+        "answer": "Continuous Integration"
+    },
+    {
+        "domain": "software engineering",
+        "language": "ci/cd",
+        "difficulty": "easy",
+        "question": "Which CI/CD tool is widely used for automated build and deployment pipelines?",
+        "options": [
+            "Notepad",
+            "Jenkins",
+            "MS Word",
+            "Excel"
+        ],
+        "answer": "Jenkins"
+    },
+    {
+        "domain": "software engineering",
+        "language": "ci/cd",
+        "difficulty": "medium",
+        "question": "Which practice in CI/CD ensures code changes are automatically tested before merging?",
+        "options": [
+            "Manual code review only",
+            "Automated test gates in the pipeline",
+            "Skipping tests for speed",
+            "Ad-hoc testing"
+        ],
+        "answer": "Automated test gates in the pipeline"
+    },
+    {
+        "domain": "software engineering",
+        "language": "ci/cd",
+        "difficulty": "medium",
+        "question": "Which containerization tool is most commonly used to package applications for consistent deployments?",
+        "options": [
+            "VirtualBox",
+            "VMware",
+            "Docker",
+            "Vagrant"
+        ],
+        "answer": "Docker"
+    },
+    {
+        "domain": "software engineering",
+        "language": "ci/cd",
+        "difficulty": "advanced",
+        "question": "Which deployment strategy routes a small percentage of traffic to a new version to validate it before full rollout?",
+        "options": [
+            "Big Bang deployment",
+            "Blue-Green deployment",
+            "Canary deployment",
+            "Recreate deployment"
+        ],
+        "answer": "Canary deployment"
+    },
+    {
+        "domain": "software engineering",
+        "language": "design patterns",
+        "difficulty": "easy",
+        "question": "Which design pattern ensures only one instance of a class exists throughout the application?",
+        "options": [
+            "Factory",
+            "Observer",
+            "Singleton",
+            "Builder"
+        ],
+        "answer": "Singleton"
+    },
+    {
+        "domain": "software engineering",
+        "language": "design patterns",
+        "difficulty": "easy",
+        "question": "Which design pattern defines a one-to-many dependency where changes in one object notify all dependents?",
+        "options": [
+            "Strategy",
+            "Decorator",
+            "Observer",
+            "Proxy"
+        ],
+        "answer": "Observer"
+    },
+    {
+        "domain": "software engineering",
+        "language": "design patterns",
+        "difficulty": "medium",
+        "question": "Which creational pattern delegates object creation to subclasses instead of instantiating directly?",
+        "options": [
+            "Singleton",
+            "Factory Method",
+            "Builder",
+            "Prototype"
+        ],
+        "answer": "Factory Method"
+    },
+    {
+        "domain": "software engineering",
+        "language": "design patterns",
+        "difficulty": "medium",
+        "question": "Which structural pattern wraps an object to add new behavior without modifying the original class?",
+        "options": [
+            "Facade",
+            "Adapter",
+            "Decorator",
+            "Composite"
+        ],
+        "answer": "Decorator"
+    },
+    {
+        "domain": "software engineering",
+        "language": "design patterns",
+        "difficulty": "advanced",
+        "question": "Which architectural pattern separates read (query) and write (command) operations into distinct models?",
+        "options": [
+            "MVC",
+            "CQRS",
+            "Event Sourcing",
+            "Saga Pattern"
+        ],
+        "answer": "CQRS"
+    },
+    {
+        "domain": "software engineering",
+        "language": "linux",
+        "difficulty": "easy",
+        "question": "Which Linux command displays the current working directory?",
+        "options": [
+            "ls",
+            "cd",
+            "pwd",
+            "mkdir"
+        ],
+        "answer": "pwd"
+    },
+    {
+        "domain": "software engineering",
+        "language": "linux",
+        "difficulty": "easy",
+        "question": "Which Linux command changes file permissions?",
+        "options": [
+            "chown",
+            "chmod",
+            "chgrp",
+            "ls -l"
+        ],
+        "answer": "chmod"
+    },
+    {
+        "domain": "software engineering",
+        "language": "linux",
+        "difficulty": "medium",
+        "question": "Which Linux command searches for a pattern inside files recursively?",
+        "options": [
+            "find",
+            "locate",
+            "grep -r",
+            "cat"
+        ],
+        "answer": "grep -r"
+    },
+    {
+        "domain": "software engineering",
+        "language": "linux",
+        "difficulty": "medium",
+        "question": "Which command monitors real-time CPU and memory usage of running processes?",
+        "options": [
+            "ps aux",
+            "ls -l",
+            "top",
+            "df -h"
+        ],
+        "answer": "top"
+    },
+    {
+        "domain": "software engineering",
+        "language": "linux",
+        "difficulty": "advanced",
+        "question": "Which Linux mechanism allows a process to run in the background even after the user logs out?",
+        "options": [
+            "fg",
+            "jobs",
+            "nohup",
+            "kill"
+        ],
+        "answer": "nohup"
+    }
 ]

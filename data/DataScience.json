@@ -1,83 +1,587 @@
 [
-  {
-    "domain": "data science",
-    "language": "python",
-    "difficulty": "easy",
-    "question": "In a production ML system, which Python library is best suited for building scalable REST APIs for model serving?",
-    "options": ["Flask", "FastAPI", "Tkinter", "PyGame"],
-    "answer": "FastAPI"
-  },
-  {
-    "domain": "data science",
-    "language": "python",
-    "difficulty": "medium",
-    "question": "Which Python feature improves memory efficiency when processing large streaming datasets?",
-    "options": ["Lists", "Generators", "Tuples", "Dictionaries"],
-    "answer": "Generators"
-  },
-  {
-    "domain": "data science",
-    "language": "python",
-    "difficulty": "advanced",
-    "question": "Which technique is most suitable for parallelizing CPU-bound ML preprocessing tasks in Python?",
-    "options": ["Threading", "Multiprocessing", "Asyncio", "Lambda functions"],
-    "answer": "Multiprocessing"
-  },
-  {
-    "domain": "data science",
-    "language": "python",
-    "difficulty": "medium",
-    "question": "Which library is most appropriate for distributed data processing at scale?",
-    "options": ["Pandas", "NumPy", "Dask", "Matplotlib"],
-    "answer": "Dask"
-  },
-  {
-    "domain": "data science",
-    "language": "python",
-    "difficulty": "advanced",
-    "question": "Which approach ensures reproducibility in enterprise ML experiments?",
-    "options": ["Random coding practices", "Versioning datasets and seeds", "Manual documentation", "Local-only execution"],
-    "answer": "Versioning datasets and seeds"
-  },
-
-  {
-    "domain": "data science",
-    "language": "machine learning",
-    "difficulty": "easy",
-    "question": "Which metric is most suitable for evaluating binary classifiers in balanced datasets?",
-    "options": ["Accuracy", "RMSE", "MAE", "Log Loss"],
-    "answer": "Accuracy"
-  },
-  {
-    "domain": "data science",
-    "language": "machine learning",
-    "difficulty": "medium",
-    "question": "Which technique reduces variance in ensemble learning?",
-    "options": ["Bagging", "Gradient Descent", "Normalization", "Standardization"],
-    "answer": "Bagging"
-  },
-  {
-    "domain": "data science",
-    "language": "machine learning",
-    "difficulty": "advanced",
-    "question": "Which validation strategy is most reliable for time-series forecasting models?",
-    "options": ["Random K-Fold", "Leave-One-Out", "Rolling Window Validation", "Bootstrap"],
-    "answer": "Rolling Window Validation"
-  },
-  {
-    "domain": "data science",
-    "language": "machine learning",
-    "difficulty": "medium",
-    "question": "Which method is best to handle multicollinearity in regression models?",
-    "options": ["Increase features", "Ridge Regression", "Remove validation", "Increase epochs"],
-    "answer": "Ridge Regression"
-  },
-  {
-    "domain": "data science",
-    "language": "machine learning",
-    "difficulty": "advanced",
-    "question": "Which approach detects model drift in production?",
-    "options": ["Manual inspection", "Statistical distribution monitoring", "Increasing batch size", "Changing optimizer"],
-    "answer": "Statistical distribution monitoring"
-  }
+    {
+        "domain": "data science",
+        "language": "python",
+        "difficulty": "easy",
+        "question": "In a production ML system, which Python library is best suited for building scalable REST APIs for model serving?",
+        "options": [
+            "Flask",
+            "FastAPI",
+            "Tkinter",
+            "PyGame"
+        ],
+        "answer": "FastAPI"
+    },
+    {
+        "domain": "data science",
+        "language": "python",
+        "difficulty": "medium",
+        "question": "Which Python feature improves memory efficiency when processing large streaming datasets?",
+        "options": [
+            "Lists",
+            "Generators",
+            "Tuples",
+            "Dictionaries"
+        ],
+        "answer": "Generators"
+    },
+    {
+        "domain": "data science",
+        "language": "python",
+        "difficulty": "advanced",
+        "question": "Which technique is most suitable for parallelizing CPU-bound ML preprocessing tasks in Python?",
+        "options": [
+            "Threading",
+            "Multiprocessing",
+            "Asyncio",
+            "Lambda functions"
+        ],
+        "answer": "Multiprocessing"
+    },
+    {
+        "domain": "data science",
+        "language": "python",
+        "difficulty": "medium",
+        "question": "Which library is most appropriate for distributed data processing at scale?",
+        "options": [
+            "Pandas",
+            "NumPy",
+            "Dask",
+            "Matplotlib"
+        ],
+        "answer": "Dask"
+    },
+    {
+        "domain": "data science",
+        "language": "python",
+        "difficulty": "advanced",
+        "question": "Which approach ensures reproducibility in enterprise ML experiments?",
+        "options": [
+            "Random coding practices",
+            "Versioning datasets and seeds",
+            "Manual documentation",
+            "Local-only execution"
+        ],
+        "answer": "Versioning datasets and seeds"
+    },
+    {
+        "domain": "data science",
+        "language": "pandas",
+        "difficulty": "easy",
+        "question": "Which pandas method is used to read a CSV file into a DataFrame?",
+        "options": [
+            "pd.load_csv()",
+            "pd.read_csv()",
+            "pd.open_csv()",
+            "pd.import_csv()"
+        ],
+        "answer": "pd.read_csv()"
+    },
+    {
+        "domain": "data science",
+        "language": "pandas",
+        "difficulty": "easy",
+        "question": "Which pandas method returns the first 5 rows of a DataFrame?",
+        "options": [
+            "df.tail()",
+            "df.head()",
+            "df.sample()",
+            "df.describe()"
+        ],
+        "answer": "df.head()"
+    },
+    {
+        "domain": "data science",
+        "language": "pandas",
+        "difficulty": "medium",
+        "question": "Which pandas method fills missing values in a DataFrame?",
+        "options": [
+            "df.drop()",
+            "df.fillna()",
+            "df.replace()",
+            "df.dropna()"
+        ],
+        "answer": "df.fillna()"
+    },
+    {
+        "domain": "data science",
+        "language": "pandas",
+        "difficulty": "medium",
+        "question": "Which pandas function merges two DataFrames based on a common key column?",
+        "options": [
+            "pd.concat()",
+            "pd.merge()",
+            "pd.join()",
+            "pd.append()"
+        ],
+        "answer": "pd.merge()"
+    },
+    {
+        "domain": "data science",
+        "language": "pandas",
+        "difficulty": "advanced",
+        "question": "Which pandas method is most efficient for applying a function across large DataFrames with grouped aggregations?",
+        "options": [
+            "iterrows()",
+            "apply() with transform",
+            "groupby().agg()",
+            "for-loop with loc"
+        ],
+        "answer": "groupby().agg()"
+    },
+    {
+        "domain": "data science",
+        "language": "numpy",
+        "difficulty": "easy",
+        "question": "Which NumPy function creates an array of zeros with a specified shape?",
+        "options": [
+            "np.empty()",
+            "np.ones()",
+            "np.zeros()",
+            "np.full()"
+        ],
+        "answer": "np.zeros()"
+    },
+    {
+        "domain": "data science",
+        "language": "numpy",
+        "difficulty": "easy",
+        "question": "What is the NumPy attribute used to get the shape of an array?",
+        "options": [
+            ".size",
+            ".shape",
+            ".ndim",
+            ".dtype"
+        ],
+        "answer": ".shape"
+    },
+    {
+        "domain": "data science",
+        "language": "numpy",
+        "difficulty": "medium",
+        "question": "Which NumPy operation is used to compute the dot product of two matrices?",
+        "options": [
+            "np.cross()",
+            "np.dot()",
+            "np.multiply()",
+            "np.add()"
+        ],
+        "answer": "np.dot()"
+    },
+    {
+        "domain": "data science",
+        "language": "numpy",
+        "difficulty": "medium",
+        "question": "Which NumPy function is used to generate evenly spaced values in a specified range?",
+        "options": [
+            "np.range()",
+            "np.linspace()",
+            "np.arange()",
+            "np.space()"
+        ],
+        "answer": "np.linspace()"
+    },
+    {
+        "domain": "data science",
+        "language": "numpy",
+        "difficulty": "advanced",
+        "question": "In NumPy, which concept allows operations on arrays of different shapes without explicit copying of data?",
+        "options": [
+            "Slicing",
+            "Broadcasting",
+            "Stacking",
+            "Masking"
+        ],
+        "answer": "Broadcasting"
+    },
+    {
+        "domain": "data science",
+        "language": "statistics",
+        "difficulty": "easy",
+        "question": "Which measure of central tendency is most affected by outliers?",
+        "options": [
+            "Median",
+            "Mode",
+            "Mean",
+            "Range"
+        ],
+        "answer": "Mean"
+    },
+    {
+        "domain": "data science",
+        "language": "statistics",
+        "difficulty": "easy",
+        "question": "What does standard deviation measure in a dataset?",
+        "options": [
+            "Central value",
+            "Spread of values around the mean",
+            "Maximum value",
+            "Number of observations"
+        ],
+        "answer": "Spread of values around the mean"
+    },
+    {
+        "domain": "data science",
+        "language": "statistics",
+        "difficulty": "medium",
+        "question": "Which statistical test is used to compare means of two independent groups?",
+        "options": [
+            "Chi-square test",
+            "ANOVA",
+            "Independent t-test",
+            "Pearson correlation"
+        ],
+        "answer": "Independent t-test"
+    },
+    {
+        "domain": "data science",
+        "language": "statistics",
+        "difficulty": "medium",
+        "question": "What does a p-value less than 0.05 typically indicate in hypothesis testing?",
+        "options": [
+            "Accept the null hypothesis",
+            "Reject the null hypothesis",
+            "No conclusion",
+            "Increase sample size"
+        ],
+        "answer": "Reject the null hypothesis"
+    },
+    {
+        "domain": "data science",
+        "language": "statistics",
+        "difficulty": "advanced",
+        "question": "Which technique is used to address multicollinearity when building regression models?",
+        "options": [
+            "Adding more features",
+            "Variance Inflation Factor (VIF) analysis",
+            "Increasing dataset size only",
+            "Removing the target variable"
+        ],
+        "answer": "Variance Inflation Factor (VIF) analysis"
+    },
+    {
+        "domain": "data science",
+        "language": "probability",
+        "difficulty": "easy",
+        "question": "What is the probability of getting heads when flipping a fair coin?",
+        "options": [
+            "0.25",
+            "0.75",
+            "0.5",
+            "1.0"
+        ],
+        "answer": "0.5"
+    },
+    {
+        "domain": "data science",
+        "language": "probability",
+        "difficulty": "easy",
+        "question": "Which theorem relates conditional probabilities using prior and likelihood?",
+        "options": [
+            "Central Limit Theorem",
+            "Bayes' Theorem",
+            "Law of Large Numbers",
+            "Chebyshev's Theorem"
+        ],
+        "answer": "Bayes' Theorem"
+    },
+    {
+        "domain": "data science",
+        "language": "probability",
+        "difficulty": "medium",
+        "question": "Which probability distribution is most suitable for modeling the number of events in a fixed time interval?",
+        "options": [
+            "Normal distribution",
+            "Binomial distribution",
+            "Poisson distribution",
+            "Uniform distribution"
+        ],
+        "answer": "Poisson distribution"
+    },
+    {
+        "domain": "data science",
+        "language": "probability",
+        "difficulty": "medium",
+        "question": "What does the Central Limit Theorem state about sample means?",
+        "options": [
+            "They are always normally distributed",
+            "They approach a normal distribution as sample size increases",
+            "They equal the population mean exactly",
+            "They are always skewed"
+        ],
+        "answer": "They approach a normal distribution as sample size increases"
+    },
+    {
+        "domain": "data science",
+        "language": "probability",
+        "difficulty": "advanced",
+        "question": "Which concept describes the probability of an event given that another event has already occurred?",
+        "options": [
+            "Joint probability",
+            "Marginal probability",
+            "Conditional probability",
+            "Prior probability"
+        ],
+        "answer": "Conditional probability"
+    },
+    {
+        "domain": "data science",
+        "language": "sql",
+        "difficulty": "easy",
+        "question": "Which SQL clause is used to filter rows in a query result?",
+        "options": [
+            "GROUP BY",
+            "ORDER BY",
+            "WHERE",
+            "HAVING"
+        ],
+        "answer": "WHERE"
+    },
+    {
+        "domain": "data science",
+        "language": "sql",
+        "difficulty": "easy",
+        "question": "Which SQL function counts the number of rows in a table?",
+        "options": [
+            "SUM()",
+            "AVG()",
+            "COUNT()",
+            "MAX()"
+        ],
+        "answer": "COUNT()"
+    },
+    {
+        "domain": "data science",
+        "language": "sql",
+        "difficulty": "medium",
+        "question": "Which SQL JOIN returns only the rows where there is a match in both tables?",
+        "options": [
+            "LEFT JOIN",
+            "RIGHT JOIN",
+            "INNER JOIN",
+            "FULL OUTER JOIN"
+        ],
+        "answer": "INNER JOIN"
+    },
+    {
+        "domain": "data science",
+        "language": "sql",
+        "difficulty": "medium",
+        "question": "Which SQL clause filters results after a GROUP BY aggregation?",
+        "options": [
+            "WHERE",
+            "HAVING",
+            "FILTER",
+            "LIMIT"
+        ],
+        "answer": "HAVING"
+    },
+    {
+        "domain": "data science",
+        "language": "sql",
+        "difficulty": "advanced",
+        "question": "Which SQL window function assigns a unique rank to each row within a partition without gaps?",
+        "options": [
+            "RANK()",
+            "DENSE_RANK()",
+            "ROW_NUMBER()",
+            "NTILE()"
+        ],
+        "answer": "DENSE_RANK()"
+    },
+    {
+        "domain": "data science",
+        "language": "business understanding",
+        "difficulty": "easy",
+        "question": "What is the first step in a typical data science project lifecycle?",
+        "options": [
+            "Model building",
+            "Data cleaning",
+            "Business problem definition",
+            "Deployment"
+        ],
+        "answer": "Business problem definition"
+    },
+    {
+        "domain": "data science",
+        "language": "business understanding",
+        "difficulty": "easy",
+        "question": "Which metric directly measures business impact of a recommendation system?",
+        "options": [
+            "Model accuracy",
+            "Revenue lift",
+            "Training loss",
+            "Data volume"
+        ],
+        "answer": "Revenue lift"
+    },
+    {
+        "domain": "data science",
+        "language": "business understanding",
+        "difficulty": "medium",
+        "question": "A business requests a churn prediction model. Which is the most important first question to ask?",
+        "options": [
+            "Which algorithm to use?",
+            "What action will be taken on predicted churners?",
+            "How much data do we have?",
+            "What programming language to use?"
+        ],
+        "answer": "What action will be taken on predicted churners?"
+    },
+    {
+        "domain": "data science",
+        "language": "business understanding",
+        "difficulty": "medium",
+        "question": "Which approach best communicates data science results to non-technical stakeholders?",
+        "options": [
+            "Showing full model code",
+            "Business-outcome-focused dashboards",
+            "Sharing raw confusion matrix",
+            "Presenting loss curves"
+        ],
+        "answer": "Business-outcome-focused dashboards"
+    },
+    {
+        "domain": "data science",
+        "language": "business understanding",
+        "difficulty": "advanced",
+        "question": "Which framework is commonly used to define the scope and success criteria of a data science project?",
+        "options": [
+            "CRISP-DM",
+            "Agile only",
+            "SDLC only",
+            "Waterfall only"
+        ],
+        "answer": "CRISP-DM"
+    },
+    {
+        "domain": "data science",
+        "language": "machine learning",
+        "difficulty": "easy",
+        "question": "Which metric is most suitable for evaluating binary classifiers in balanced datasets?",
+        "options": [
+            "Accuracy",
+            "RMSE",
+            "MAE",
+            "Log Loss"
+        ],
+        "answer": "Accuracy"
+    },
+    {
+        "domain": "data science",
+        "language": "machine learning",
+        "difficulty": "medium",
+        "question": "Which technique reduces variance in ensemble learning?",
+        "options": [
+            "Bagging",
+            "Gradient Descent",
+            "Normalization",
+            "Standardization"
+        ],
+        "answer": "Bagging"
+    },
+    {
+        "domain": "data science",
+        "language": "machine learning",
+        "difficulty": "advanced",
+        "question": "Which validation strategy is most reliable for time-series forecasting models?",
+        "options": [
+            "Random K-Fold",
+            "Leave-One-Out",
+            "Rolling Window Validation",
+            "Bootstrap"
+        ],
+        "answer": "Rolling Window Validation"
+    },
+    {
+        "domain": "data science",
+        "language": "machine learning",
+        "difficulty": "medium",
+        "question": "Which method is best to handle multicollinearity in regression models?",
+        "options": [
+            "Increase features",
+            "Ridge Regression",
+            "Remove validation",
+            "Increase epochs"
+        ],
+        "answer": "Ridge Regression"
+    },
+    {
+        "domain": "data science",
+        "language": "machine learning",
+        "difficulty": "advanced",
+        "question": "Which approach detects model drift in production?",
+        "options": [
+            "Manual inspection",
+            "Statistical distribution monitoring",
+            "Increasing batch size",
+            "Changing optimizer"
+        ],
+        "answer": "Statistical distribution monitoring"
+    },
+{
+        "domain": "data science",
+        "language": "scikit-learn",
+        "difficulty": "easy",
+        "question": "Which scikit-learn class is used to split a dataset into training and testing sets?",
+        "options": [
+            "train_test_split",
+            "GridSearchCV",
+            "KFold",
+            "StandardScaler"
+        ],
+        "answer": "train_test_split"
+    },
+    {
+        "domain": "data science",
+        "language": "scikit-learn",
+        "difficulty": "easy",
+        "question": "Which scikit-learn method trains a model on the provided data?",
+        "options": [
+            ".predict()",
+            ".score()",
+            ".fit()",
+            ".transform()"
+        ],
+        "answer": ".fit()"
+    },
+    {
+        "domain": "data science",
+        "language": "scikit-learn",
+        "difficulty": "medium",
+        "question": "Which scikit-learn preprocessor scales features to have zero mean and unit variance?",
+        "options": [
+            "MinMaxScaler",
+            "RobustScaler",
+            "StandardScaler",
+            "Normalizer"
+        ],
+        "answer": "StandardScaler"
+    },
+    {
+        "domain": "data science",
+        "language": "scikit-learn",
+        "difficulty": "medium",
+        "question": "Which scikit-learn utility is used to perform hyperparameter tuning with cross-validation?",
+        "options": [
+            "Pipeline",
+            "GridSearchCV",
+            "ColumnTransformer",
+            "LabelEncoder"
+        ],
+        "answer": "GridSearchCV"
+    },
+    {
+        "domain": "data science",
+        "language": "scikit-learn",
+        "difficulty": "advanced",
+        "question": "Which scikit-learn object chains preprocessing steps and a model into a single estimator, preventing data leakage?",
+        "options": [
+            "FeatureUnion",
+            "Pipeline",
+            "ColumnTransformer",
+            "VotingClassifier"
+        ],
+        "answer": "Pipeline"
+    }
 ]
