@@ -55,8 +55,8 @@ export default function Sidebar({ collapsed, onToggle, activeTab, onTabChange })
         }}>
             {/* Brand */}
             <div style={{ padding: '20px 16px 16px', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid rgba(35,114,39,0.15)' }}>
-                <div style={{ width: 32, height: 32, background: '#237227', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Zap size={18} color="#F0FFDF" />
+                <div style={{ width: 32, height: 32, background: '#237227', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                    <img src="/logo.jpeg" alt="SkillBridge" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
                 {!collapsed && <span style={{ fontWeight: 700, color: '#F0FFDF', fontSize: 16, whiteSpace: 'nowrap' }}>SkillBridge</span>}
             </div>

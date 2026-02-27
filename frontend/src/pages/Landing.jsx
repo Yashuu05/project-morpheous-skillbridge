@@ -28,8 +28,8 @@ const SkillBridgeLanding = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-[#237227] rounded-lg flex items-center justify-center">
-                <Zap className="text-[#F0FFDF]" size={24} />
+              <div className="w-10 h-10 bg-[#237227] rounded-lg flex items-center justify-center overflow-hidden">
+                <img src="/logo.jpeg" alt="SkillBridge Logo" className="w-full h-full object-cover" />
               </div>
               <span className="text-xl font-bold text-[#F0FFDF] hidden sm:inline">SkillBridge</span>
             </div>
@@ -351,8 +351,8 @@ const SkillBridgeLanding = () => {
             {/* Brand */}
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-[#237227] rounded-lg flex items-center justify-center">
-                  <Zap className="text-[#F0FFDF]" size={20} />
+                <div className="w-8 h-8 bg-[#237227] rounded-lg flex items-center justify-center overflow-hidden">
+                  <img src="/logo.jpeg" alt="SkillBridge Logo" className="w-full h-full object-cover" />
                 </div>
                 <span className="text-lg font-bold text-[#F0FFDF]">SkillBridge</span>
               </div>
