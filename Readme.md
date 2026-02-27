@@ -43,39 +43,39 @@
 
 ### 1. landing page
 
-![landing page preview](landing.png)
+![landing page preview](assets/landing.png)
 
 ---
 
-![login pag preview](login.png)
+![login pag preview](assets/login.png)
 
 ---
 
-![signup page preview](signup.png)
+![signup page preview](assets/signup.png)
 
 ---
 
-![dashboard preview](dashboard.png)
+![dashboard preview](assets/dashboard.png)
 
 ---
 
-![resume preview](resume.png)
+![resume preview](assets/resume.png)
 
 ---
 
-![skill gap preview](skill_gap.png)
+![skill gap preview](assets/skill_gap.png)
 
 ---
 
-![assessment preview](assessment.png)
+![assessment preview](assets/assessment.png)
 
 ---
 
-![career match preview](career_match.png)
+![career match preview](assets/career_match.png)
 
 ---
 
-![roadmap preview](roadmap.png)
+![roadmap preview](assets/roadmap.png)
 
 ---
 ### Getting Started
