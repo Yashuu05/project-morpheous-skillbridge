@@ -1,0 +1,22 @@
+# backend
+flask==3.0.2
+flask-cors==4.0.0
+
+# Resume parsing
+pymupdf==1.23.26
+
+# RAG
+sentence-transformers==2.7.0
+torch>=2.1.0
+transformers>=4.38.0
+
+# vectore database
+faiss-cpu==1.7.4
+
+# LLM and RAG
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+
+# environment
+python-dotenv>=1.0.0
