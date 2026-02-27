@@ -1,3 +1,4 @@
 backend/firebase/serviceAccountKey.json
 .env
 sit
+frontend/src/firebase.js
