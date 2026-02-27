@@ -1,0 +1,117 @@
+{
+  "roles": [
+    {
+      "title": "Software Engineer",
+      "description": "Designs, develops, tests, and maintains software systems and applications; collaborates with cross-functional teams to deliver reliable software solutions. Often involved with the full development lifecycle. :contentReference[oaicite:1]{index=1}",
+      "core_skills": [
+        "Programming languages (e.g., Python, Java, C++)",
+        "Data structures & algorithms",
+        "Version control (Git)",
+        "Debugging & testing",
+        "Software architecture & system design"
+      ],
+      "approx_salary": {
+        "India": {
+          "entry_level": "₹4–9 LPA",
+          "average": "₹8–28 LPA",
+          "senior": "₹20–40+ LPA"
+        },
+        "global_US": {
+          "median": "$70,000–$140,000+",
+          "high_end": "$181,000+"
+        }
+      },
+      "notes": "Indian salaries vary by company and city; big tech product roles pay more. :contentReference[oaicite:2]{index=2}"
+    },
+    {
+      "title": "Web Developer",
+      "description": "Builds and maintains websites and web applications, focusing on front-end, back-end, or full-stack development. Often works with UI/UX designers and back-end services. :contentReference[oaicite:3]{index=3}",
+      "core_skills": [
+        "HTML, CSS, JavaScript",
+        "Web frameworks (React, Angular, Vue)",
+        "Server-side languages (Node.js, Python, PHP)",
+        "APIs and REST",
+        "Databases (SQL, NoSQL)"
+      ],
+      "approx_salary": {
+        "India": {
+          "entry_level": "₹3.5–7 LPA",
+          "average": "₹6–14 LPA",
+          "senior": "₹15–30 LPA"
+        },
+        "global_US": {
+          "average": "$60,000–$110,000+"
+        }
+      },
+      "notes": "Web development pay varies widely by specialization (front-end vs full-stack vs back-end)."
+    },
+    {
+      "title": "AI Engineer",
+      "description": "Designs and implements AI/ML models, builds production-ready AI systems, works on neural networks, LLMs, computer vision, or AI automation. Requires strong ML fundamentals. :contentReference[oaicite:4]{index=4}",
+      "core_skills": [
+        "Machine learning and deep learning",
+        "Python, TensorFlow, PyTorch",
+        "Data preprocessing & model evaluation",
+        "Cloud/Azure/AWS AI services",
+        "MLOps and deployment"
+      ],
+      "approx_salary": {
+        "India": {
+          "entry_level": "₹4–10 LPA",
+          "mid_level": "₹10–22 LPA",
+          "senior/architect": "₹20–60+ LPA"
+        },
+        "global_US": {
+          "entry_level": "$70,000–$90,000",
+          "mid_level": "$90,000–$120,000",
+          "senior": "$120,000–$160,000+"
+        }
+      },
+      "notes": "AI roles can command higher pay than general software roles due to specialized skill demand. :contentReference[oaicite:5]{index=5}"
+    },
+    {
+      "title": "Data Scientist",
+      "description": "Extracts insights from large datasets, builds predictive models, and interprets analytics results to support business decisions. Often works with ML & statistical techniques. :contentReference[oaicite:6]{index=6}",
+      "core_skills": [
+        "Statistics & probability",
+        "Python, R",
+        "Machine learning",
+        "SQL/NoSQL",
+        "Data visualization (Tableau/Power BI)"
+      ],
+      "approx_salary": {
+        "India": {
+          "entry_level": "₹6–10 LPA",
+          "mid_level": "₹10–20 LPA",
+          "senior": "₹20–30+ LPA"
+        },
+        "global_US": {
+          "median": "$100,000–$130,000+"
+        }
+      },
+      "notes": "Data scientists often earn more than data analysts due to ML expertise. Advanced degrees/PhDs can raise pay further. :contentReference[oaicite:7]{index=7}"
+    },
+    {
+      "title": "Data Analyst",
+      "description": "Works with data to clean, interpret, visualize, and report insights that help business decision-making. Focuses on descriptive analytics rather than predictive modelling. :contentReference[oaicite:8]{index=8}",
+      "core_skills": [
+        "SQL, Excel",
+        "Python or R for analytics",
+        "Data visualization (Tableau/Power BI)",
+        "Statistics & critical thinking",
+        "Communication of insights"
+      ],
+      "approx_salary": {
+        "India": {
+          "entry_level": "₹3–6 LPA",
+          "average": "₹6–10 LPA",
+          "senior": "₹10–15+ LPA"
+        },
+        "global_US": {
+          "average": "$60,000–$120,000+"
+        }
+      },
+      "notes": "Data analysts often progress into data science and business analytics positions. :contentReference[oaicite:9]{index=9}"
+    }
+  ]
+}

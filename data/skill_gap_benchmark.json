@@ -1,0 +1,85 @@
+[
+    {
+        "role": "data scientist",
+        "domain": "data science",
+        "skills": {
+            "python": 0.9,
+            "sql": 0.8,
+            "statistics": 1.0,
+            "probability": 0.9,
+            "machine learning": 0.9,
+            "pandas": 0.8,
+            "numpy": 0.7,
+            "scikit-learn": 0.8,
+            "business understanding": 0.6,
+            "data visualization": 0.6
+        }
+    },
+    {
+        "role": "data analyst",
+        "domain": "data analyst",
+        "skills": {
+            "sql": 0.95,
+            "excel": 0.8,
+            "data visualization": 0.9,
+            "statistics": 0.85,
+            "python": 0.7,
+            "business communication": 0.85,
+            "data cleaning": 0.9,
+            "dashboard design": 0.75,
+            "hypothesis testing": 0.7,
+            "storytelling with data": 0.8
+        }
+    },
+    {
+        "role": "ai engineer",
+        "domain": "ai engineer",
+        "skills": {
+            "python": 0.95,
+            "machine learning": 0.95,
+            "deep learning": 0.9,
+            "model deployment": 0.85,
+            "mlops": 0.8,
+            "data engineering": 0.8,
+            "cloud infrastructure": 0.75,
+            "nlp": 0.7,
+            "ai security": 0.65,
+            "mathematics": 0.85
+        }
+    },
+    {
+        "role": "software engineer",
+        "domain": "software engineering",
+        "skills": {
+            "data structures and algorithms": 0.95,
+            "object-oriented programming": 0.9,
+            "system design": 0.85,
+            "databases": 0.8,
+            "git": 0.85,
+            "testing": 0.8,
+            "rest api design": 0.8,
+            "ci/cd": 0.75,
+            "design patterns": 0.75,
+            "linux": 0.7
+        }
+    },
+    {
+        "role": "web developer",
+        "domain": "web development",
+        "skills": {
+            "html and css": 0.9,
+            "javascript": 0.95,
+            "react": 0.85,
+            "typescript": 0.7,
+            "rest api design": 0.8,
+            "databases": 0.75,
+            "authentication and authorization": 0.75,
+            "performance optimization": 0.7,
+            "http and web protocols": 0.7,
+            "testing": 0.7,
+            "security": 0.75,
+            "devops": 0.65,
+            "cloud architecture": 0.65
+        }
+    }
+]
