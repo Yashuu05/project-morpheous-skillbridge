@@ -2,8 +2,11 @@ import React, { useState, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar.jsx';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
+import {
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell
+} from 'recharts';
 import {
     TrendingUp, ClipboardList, Code2, Loader2,
     FileText, UploadCloud, CheckCircle2, AlertCircle,
@@ -51,6 +54,97 @@ const ASSESSMENTS = [
 const STATUS_COLOR = { pass: '#4ade80', fail: '#f87171', pending: '#fbbf24' };
 const TABS = ['Overview', 'Resume Info', 'Assessment'];
 
+
+// ─── Score Bar Chart (reads from Firestore test_scores) ──────────────────────
+function ScoreBarChart({ uid, s }) {
+    const [chartData, setChartData] = useState(null); // null=loading, []=no data
+    const [domain, setDomain] = useState('');
+    const [totalScore, setTotalScore] = useState(null);
+
+    React.useEffect(() => {
+        if (!uid) { setChartData([]); return; }
+        getDoc(doc(db, 'test_scores', uid)).then(snap => {
+            if (!snap.exists()) { setChartData([]); return; }
+            const data = snap.data();
+            setDomain(data.domain || '');
+            setTotalScore(data.total_score ?? null);
+            const rows = Object.entries(data.scores || {}).map(([skill, score]) => ({
+                skill: skill.charAt(0).toUpperCase() + skill.slice(1),
+                score: Math.round(score * 100),
+            }));
+            setChartData(rows);
+        }).catch(() => setChartData([]));
+    }, [uid]);
+
+    const CustomTooltip = ({ active, payload, label }) => {
+        if (!active || !payload?.length) return null;
+        return (
+            <div style={{ background: '#1F1F1F', border: '1px solid rgba(59,130,246,0.35)', borderRadius: 8, padding: '8px 14px' }}>
+                <p style={{ color: 'rgba(240,255,223,0.7)', fontSize: 12, marginBottom: 3 }}>{label}</p>
+                <p style={{ color: '#3b82f6', fontSize: 16, fontWeight: 700, margin: 0 }}>{payload[0].value}%</p>
+            </div>
+        );
+    };
+
+    return (
+        <div style={s.card}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div>
+                    <h4 style={{ ...s.h4, marginBottom: 4 }}>Assessment Score by Skill</h4>
+                    {domain && <span style={{ fontSize: 12, color: 'rgba(240,255,223,0.4)', textTransform: 'capitalize' }}>Domain: {domain}</span>}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    {totalScore !== null && (
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#3b82f6', background: 'rgba(59,130,246,0.12)', padding: '4px 12px', borderRadius: 99, border: '1px solid rgba(59,130,246,0.25)' }}>
+                            Avg {Math.round(totalScore * 100)}%
+                        </span>
+                    )}
+                    <ClipboardList size={16} color="rgba(240,255,223,0.3)" />
+                </div>
+            </div>
+
+            {chartData === null && (
+                <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Loader2 size={24} color='#3b82f6' style={{ animation: 'spin 1s linear infinite' }} />
+                </div>
+            )}
+
+            {chartData !== null && chartData.length === 0 && (
+                <div style={{ height: 180, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                    <ClipboardList size={36} color='rgba(240,255,223,0.15)' />
+                    <p style={{ color: 'rgba(240,255,223,0.4)', fontSize: 13, margin: 0 }}>No assessment data yet</p>
+                    <p style={{ color: 'rgba(240,255,223,0.25)', fontSize: 12, margin: 0 }}>Go to the Assessment tab to take your first test</p>
+                </div>
+            )}
+
+            {chartData !== null && chartData.length > 0 && (
+                <ResponsiveContainer width="100%" height={240}>
+                    <BarChart data={chartData} margin={{ top: 8, right: 16, left: -10, bottom: 48 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(240,255,223,0.07)" vertical={false} />
+                        <XAxis
+                            dataKey="skill"
+                            tick={{ fill: 'rgba(240,255,223,0.55)', fontSize: 11 }}
+                            angle={-35}
+                            textAnchor="end"
+                            interval={0}
+                            axisLine={{ stroke: 'rgba(240,255,223,0.1)' }}
+                            tickLine={false}
+                        />
+                        <YAxis
+                            domain={[0, 100]}
+                            tickFormatter={v => `${v}%`}
+                            tick={{ fill: 'rgba(240,255,223,0.45)', fontSize: 11 }}
+                            axisLine={false}
+                            tickLine={false}
+                        />
+                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(59,130,246,0.06)' }} />
+                        <Bar dataKey="score" fill="#3b82f6" radius={[6, 6, 0, 0]} maxBarSize={40} />
+                    </BarChart>
+                </ResponsiveContainer>
+            )}
+        </div>
+    );
+}
 
 // ─── Domain detection helper ─────────────────────────────────────────────────
 const DOMAIN_MAP = [
@@ -642,12 +736,12 @@ export default function Dashboard() {
                 {/* ── Overview tab ── */}
                 {activeTab === 'Overview' && (
                     <>
-                        {/* Stats row */}
+                        {/* Stats row — Skills Identified only (Readiness + Assessments replaced by chart) */}
                         <div style={s.grid3}>
                             {[
-                                { label: 'Overall Readiness', val: '74%', delta: '↑ +6% this month' },
-                                { label: 'Assessments Taken', val: '12', delta: '↑ +3 this week' },
                                 { label: 'Skills Identified', val: skills.length, delta: `${skills.length} skills on profile` },
+                                { label: 'Interests', val: interests.length, delta: interests.slice(0, 2).join(' · ') || '—' },
+                                { label: 'Year of Study', val: user?.currentYear ? `Year ${user.currentYear}` : '—', delta: user?.educationalLevel || 'Student' },
                             ].map(({ label, val, delta }) => (
                                 <div key={label} style={s.card}>
                                     <div style={s.label}>{label}</div>
@@ -706,27 +800,9 @@ export default function Dashboard() {
                             </div>
                         </div>
 
-                        {/* Recent Assessments */}
-                        <div style={s.card}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                                <h4 style={{ ...s.h4, marginBottom: 0 }}>Recent Assessments</h4>
-                                <ClipboardList size={16} color="rgba(240,255,223,0.3)" />
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                {ASSESSMENTS.map((a) => (
-                                    <div key={a.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(240,255,223,0.06)' }}>
-                                        <div>
-                                            <div style={{ fontSize: 14, fontWeight: 600, color: '#F0FFDF' }}>{a.name}</div>
-                                            <div style={{ fontSize: 12, color: 'rgba(240,255,223,0.4)', marginTop: 2 }}>{a.date}</div>
-                                        </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                            <span style={{ fontWeight: 700, fontSize: 14, color: STATUS_COLOR[a.status] }}>{a.score}</span>
-                                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: STATUS_COLOR[a.status], display: 'inline-block' }} />
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                        {/* Assessment Score Chart */}
+                        <ScoreBarChart uid={user?.uid} s={s} />
+
                     </>
                 )}
 
