@@ -7,6 +7,8 @@ import os
 from datetime import timedelta
 import random
 import json
+from google import genai
+from google.genai import types
 
 # Load environment variables
 load_dotenv()
@@ -100,6 +102,108 @@ def get_mcq_questions():
         })
 
     return jsonify(shuffled_questions), 200
+
+
+# ----------------------------------------
+# Skill Gap Calculation Route
+# ----------------------------------------
+@app.route('/api/skill-gap/calculate', methods=['POST', 'OPTIONS'])
+def calculate_skill_gap():
+    """
+    POST /api/skill-gap/calculate
+    Body: { "domain": "data science", "scores": { "python": 0.67, "sql": 0.8 } }
+    Returns per-skill gaps, step-by-step audit trail, and readiness score.
+    """
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    body         = request.get_json(force=True) or {}
+    domain       = body.get('domain', '').lower().strip()
+    user_scores  = {k.lower(): float(v) for k, v in body.get('scores', {}).items()}
+
+    # ── Load benchmark ────────────────────────────────────────────────────────
+    benchmark_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'skill_gap_benchmark.json'
+    )
+    try:
+        with open(benchmark_file, 'r', encoding='utf-8') as f:
+            benchmarks = json.load(f)
+    except FileNotFoundError:
+        return jsonify({'error': 'Benchmark file not found.'}), 404
+
+    # ── Match domain to role (exact then fuzzy) ───────────────────────────────
+    matched = next((b for b in benchmarks if b['domain'].lower() == domain), None)
+    if not matched:
+        matched = next((b for b in benchmarks
+                        if domain in b['domain'].lower() or b['domain'].lower() in domain), None)
+    if not matched:
+        matched = benchmarks[0]  # safe fallback
+
+    role             = matched['role']
+    benchmark_skills = {k.lower(): float(v) for k, v in matched['skills'].items()}
+
+    # ── Step-by-step gap calculation ──────────────────────────────────────────
+    steps        = []
+    skill_results = {}
+
+    for skill, required in benchmark_skills.items():
+        user_score   = user_scores.get(skill, 0.0)
+        gap          = round(max(0.0, required - user_score), 4)
+        weighted_gap = round(gap * required, 4)
+        pct_gap      = round(gap * 100, 1)
+
+        if gap == 0:
+            status = 'met'
+        elif gap > 0.5:
+            status = 'critical'
+        elif gap > 0.25:
+            status = 'moderate'
+        else:
+            status = 'minor'
+
+        skill_results[skill] = {
+            'required':     required,
+            'user_score':   round(user_score, 4),
+            'gap':          gap,
+            'weighted_gap': weighted_gap,
+            'pct_gap':      pct_gap,
+            'status':       status,
+        }
+        steps.append({
+            'step':         f"Skill: {skill.title()}",
+            'required':     required,
+            'user_score':   round(user_score, 4),
+            'gap':          gap,
+            'weighted_gap': weighted_gap,
+            'formula':      f"gap = max(0, {required} − {round(user_score, 2)}) = {gap}",
+            'wt_formula':   f"weighted_gap = {gap} × {required} = {weighted_gap}",
+            'status':       status,
+        })
+
+    # ── Aggregate ─────────────────────────────────────────────────────────────
+    sum_w_gaps   = round(sum(r['weighted_gap'] for r in skill_results.values()), 4)
+    sum_weights  = round(sum(benchmark_skills.values()), 4)
+    total_gap    = round(sum_w_gaps / sum_weights, 4) if sum_weights else 0.0
+    readiness    = round((1 - total_gap) * 100, 1)
+
+    return jsonify({
+        'role':    role,
+        'domain':  domain,
+        'skill_results': skill_results,
+        'steps':   steps,
+        'totals': {
+            'sum_weighted_gaps': sum_w_gaps,
+            'sum_weights':       sum_weights,
+            'total_gap':         total_gap,
+            'readiness':         readiness,
+        },
+        'formula_legend': {
+            'per_skill_gap':  'gap[skill]  = max(0,  benchmark − user_score)',
+            'weighted_gap':   'w_gap[skill]= gap × benchmark_weight',
+            'total_gap':      f'total_gap   = Σ w_gaps / Σ weights  =  {sum_w_gaps} / {sum_weights}  =  {total_gap}',
+            'readiness':      f'readiness   = (1 − {total_gap}) × 100  =  {readiness}%',
+        },
+    }), 200
 
 
 # ----------------------------------------
@@ -324,6 +428,159 @@ def drop_db():
 # ----------------------------------------
 # Run Server
 # ----------------------------------------
+
+# ----------------------------------------
+# SWOT Analysis Route (Gemini)
+# ----------------------------------------
+@app.route('/api/swot/analyze', methods=['POST', 'OPTIONS'])
+def swot_analyze():
+    """
+    POST /api/swot/analyze
+    Body: {
+      "domain": "data science",
+      "role": "data scientist",
+      "skills": ["python", "sql"],
+      "skill_results": { "python": { "required": 0.9, "user_score": 0.67, "gap": 0.23, "status": "moderate" } },
+      "totals": { "total_gap": 0.31, "readiness": 69.0 }
+    }
+    Returns: { "strengths": [...], "weaknesses": [...], "opportunities": [...], "threats": [...] }
+    """
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    api_key = os.getenv('GEMINI_API_KEY', '')
+    if not api_key or api_key == 'your-gemini-api-key-here':
+        return jsonify({'error': 'GEMINI_API_KEY not configured in backend/.env'}), 503
+
+    body         = request.get_json(force=True) or {}
+    profile      = body.get('profile', {})
+    skill_results= body.get('skill_results', {})
+    totals       = body.get('totals', {})
+    test_scores  = body.get('test_scores', {})   # raw MCQ scores as fallback
+
+    # Pull fields from profile
+    domain       = profile.get('domain', 'unknown')
+    role         = profile.get('role', '') or domain
+    skills       = profile.get('skills', [])
+    name         = profile.get('name', 'Student')
+    education    = profile.get('education', '')
+    university   = profile.get('university', '')
+    year         = profile.get('currentYear', '')
+    interests    = profile.get('interests', [])
+
+    # Load JobInfo for role context
+    job_info_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'JobInfo.json'
+    )
+    job_context = ''
+    try:
+        with open(job_info_file, 'r', encoding='utf-8') as f:
+            job_data = json.load(f)
+        matched_job = next(
+            (r for r in job_data.get('roles', [])
+             if r['title'].lower().replace(' ', '') == role.lower().replace(' ', '')),
+            None
+        )
+        if not matched_job:
+            matched_job = next(
+                (r for r in job_data.get('roles', [])
+                 if domain.lower() in r['title'].lower() or r['title'].lower() in domain.lower()),
+                None
+            )
+        if matched_job:
+            job_context = (
+                f"\nJob Role Info — {matched_job['title']}:\n"
+                f"Description: {matched_job['description']}\n"
+                f"Core Skills Required: {', '.join(matched_job['core_skills'])}\n"
+                f"India Salary Range: {matched_job['approx_salary'].get('India', {})}\n"
+            )
+    except Exception:
+        pass
+
+    # Build skill gap summary (from full skill_results if available)
+    skill_lines = []
+    for skill, info in skill_results.items():
+        status = info.get('status', '')
+        u = round(info.get('user_score', 0) * 100)
+        r = round(info.get('required', 0) * 100)
+        g = round(info.get('gap', 0) * 100)
+        skill_lines.append(f"  - {skill.title()}: scored={u}% | required={r}% | gap={g}% | status={status}")
+
+    # Fallback: use raw test_scores if skill_gap wasn't run
+    if not skill_lines and test_scores:
+        for skill, score in test_scores.items():
+            skill_lines.append(f"  - {skill.title()}: MCQ score={round(float(score)*100)}%")
+
+    skill_summary = '\n'.join(skill_lines) if skill_lines else '  (Assessment not yet taken — analysis will be based on profile only)'
+
+    readiness = totals.get('readiness', 'N/A')
+    total_gap = totals.get('total_gap', 'N/A')
+    user_skills = ', '.join(skills) if skills else 'not specified'
+    user_interests = ', '.join(interests) if interests else 'not specified'
+
+    context = f"""
+Student Profile:
+- Name: {name}
+- Domain of Interest: {domain}
+- Target Role: {role}
+- Listed Skills: {user_skills}
+- Interests: {user_interests}
+- Education Level: {education or 'not specified'}
+- University / College: {university or 'not specified'}
+- Current Year of Study: {year or 'not specified'}
+- Career Readiness Score: {readiness}{'%' if isinstance(readiness, (int,float)) else ''}
+- Total Weighted Skill Gap: {total_gap}
+
+Skill-by-Skill Assessment:
+{skill_summary}
+{job_context}
+"""
+
+    prompt = (
+        "Based on the student profile above, generate a detailed SWOT analysis.\n\n"
+        "Respond ONLY with valid JSON in this exact format, no markdown, no extra text:\n"
+        "{\n"
+        '  "strengths":     [{"title": "...", "explanation": "..."}],\n'
+        '  "weaknesses":    [{"title": "...", "explanation": "..."}],\n'
+        '  "opportunities": [{"title": "...", "explanation": "..."}],\n'
+        '  "threats":       [{"title": "...", "explanation": "..."}]\n'
+        "}\n\n"
+        "Each array must have 3–5 items. Be specific, actionable, and concise."
+    )
+
+    SYSTEM_PROMPT = (
+        "You are a career mentor and guide whose primary task is to provide SWOT analysis to students. "
+        "Given the skill gap of students, provide Strengths, Weaknesses, Opportunities, and Threats "
+        "with reasonable, actionable explanations. "
+        "Provide your explanation in a structured way. "
+        "If the information given is incomplete, respond with: "
+        '{"error": "Incomplete data to analyse"}.'
+    )
+
+    try:
+        client   = genai.Client(api_key=api_key)
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
+            contents=context + '\n\n' + prompt,
+        )
+        raw = response.text.strip()
+        # Strip markdown fences if present
+        if raw.startswith('```'):
+            raw = raw.split('```')[1]
+            if raw.startswith('json'):
+                raw = raw[4:]
+        swot = json.loads(raw)
+        return jsonify(swot), 200
+
+    except json.JSONDecodeError:
+        return jsonify({'error': 'Gemini returned non-JSON response.', 'raw': raw[:500]}), 502
+    except Exception as e:
+        import traceback
+        traceback.print_exc()          # prints full trace to Flask console
+        return jsonify({'error': str(e), 'type': type(e).__name__}), 500
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
