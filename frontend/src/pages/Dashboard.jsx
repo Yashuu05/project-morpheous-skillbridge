@@ -11,7 +11,7 @@ import {
 import {
     TrendingUp, ClipboardList, Code2, Loader2,
     FileText, UploadCloud, CheckCircle2, AlertCircle,
-    Briefcase, FolderOpen, X, RefreshCw, Camera, VideoOff
+    Briefcase, FolderOpen, X, RefreshCw, Camera, VideoOff, Github
 } from 'lucide-react';
 import CareerMatchTab from './CareerMatchTab.jsx';
 import RoadmapTab from './RoadmapTab.jsx';
@@ -54,7 +54,7 @@ const ASSESSMENTS = [
 ];
 
 const STATUS_COLOR = { pass: '#4ade80', fail: '#f87171', pending: '#fbbf24' };
-const TABS = ['Overview', 'Resume Info', 'Assessment', 'Skill Gap', 'SWOT Analysis', 'Career Match', 'Roadmap'];
+const TABS = ['Overview', 'Resume Info', 'GitHub Research', 'Assessment', 'Skill Gap', 'SWOT Analysis', 'Career Match', 'Roadmap'];
 
 const STATUS_STYLE = {
     met: { bg: 'rgba(74,222,128,0.12)', border: 'rgba(74,222,128,0.3)', text: '#4ade80', label: '\u2713 Met' },
@@ -1071,6 +1071,160 @@ function ResumeInfoTab({ uid, userName }) {
 }
 
 
+function GitHubScraperTab({ uid }) {
+    const [url, setUrl] = useState('');
+    const [scraping, setScraping] = useState(false);
+    const [repoData, setRepoData] = useState(null);
+    const [error, setError] = useState('');
+
+    const handleScrape = async () => {
+        if (!url.trim()) { setError('Please enter a GitHub URL.'); return; }
+        if (!url.includes('github.com/')) { setError('Invalid GitHub URL.'); return; }
+
+        setError('');
+        setScraping(true);
+
+        try {
+            const res = await fetch('/api/github/scrape', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url.trim() }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error || `Scraping failed (HTTP ${res.status})`);
+                setScraping(false);
+                return;
+            }
+
+            // Save to Firestore
+            if (uid) {
+                try {
+                    await setDoc(doc(db, 'github_scrapes', uid), {
+                        uid,
+                        ...data,
+                        scrapedAt: serverTimestamp(),
+                    }, { merge: true });
+                } catch (fsErr) {
+                    console.warn('[GitHubTab] Firestore save failed:', fsErr);
+                }
+            }
+
+            setRepoData(data);
+        } catch (err) {
+            setError(`Network error: ${err.message}.`);
+        } finally {
+            setScraping(false);
+        }
+    };
+
+    const card = { background: '#1F1F1F', border: '1px solid rgba(35,114,39,0.2)', borderRadius: 16, padding: 24, marginBottom: 20 };
+    const tag = (color) => ({ fontSize: 12, padding: '4px 10px', borderRadius: 99, border: `1px solid ${color}33`, background: `${color}15`, color });
+
+    return (
+        <div>
+            {/* Input area */}
+            <div style={card}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                    <Github size={18} color="#237227" />
+                    <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#F0FFDF' }}>Analyze GitHub Repository</h4>
+                </div>
+
+                <div style={{ display: 'flex', gap: 10 }}>
+                    <input
+                        type="text"
+                        placeholder="https://github.com/owner/repository"
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
+                        style={{
+                            flex: 1,
+                            background: 'rgba(255,255,255,0.03)',
+                            border: '1px solid rgba(35,114,39,0.3)',
+                            borderRadius: 10,
+                            padding: '12px 16px',
+                            color: '#F0FFDF',
+                            fontSize: 14,
+                            outline: 'none',
+                        }}
+                    />
+                    <button
+                        onClick={handleScrape}
+                        disabled={scraping}
+                        style={{
+                            background: scraping ? 'rgba(35,114,39,0.2)' : 'linear-gradient(135deg,#237227,#166534)',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: 10,
+                            padding: '0 24px',
+                            fontSize: 14,
+                            fontWeight: 600,
+                            cursor: scraping ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            transition: 'all 0.2s',
+                        }}
+                    >
+                        {scraping ? <Loader2 size={16} className="animate-spin" /> : 'Scrape'}
+                    </button>
+                </div>
+
+                {error && (
+                    <div style={{ marginTop: 12, padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <AlertCircle size={16} color="#f87171" />
+                        <span style={{ color: '#f87171', fontSize: 13 }}>{error}</span>
+                    </div>
+                )}
+            </div>
+
+            {/* Scraped data */}
+            {repoData && (
+                <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderRadius: 10, background: 'rgba(35,114,39,0.12)', border: '1px solid rgba(35,114,39,0.3)', marginBottom: 20 }}>
+                        <CheckCircle2 size={16} color="#4ade80" />
+                        <span style={{ color: '#4ade80', fontSize: 13, fontWeight: 600 }}>
+                            Repository analyzed & saved ✓
+                        </span>
+                        <span style={{ color: 'rgba(240,255,223,0.4)', fontSize: 12, marginLeft: 4 }}>
+                            — {repoData.name} ({repoData.stars} stars)
+                        </span>
+                    </div>
+
+                    <div style={card}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                            <TrendingUp size={16} color="#4ade80" />
+                            <h4 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#F0FFDF' }}>AI Insights</h4>
+                        </div>
+                        <p style={{ color: 'rgba(240,255,223,0.8)', fontSize: 14, lineHeight: 1.6, margin: 0 }}>
+                            {repoData.geminiAnalysis}
+                        </p>
+                    </div>
+
+                    <div style={card}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                            <Code2 size={16} color="#3b82f6" />
+                            <h4 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#F0FFDF' }}>Tech Stack & Topics</h4>
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                            {repoData.techStack?.map((tech, i) => (
+                                <span key={i} style={tag('#60a5fa')}>{tech}</span>
+                            ))}
+                        </div>
+                        <p style={{ color: 'rgba(240,255,223,0.3)', fontSize: 12, marginTop: 14 }}>
+                            Primary Language: <span style={{ color: 'rgba(240,255,223,0.5)' }}>{repoData.language}</span>
+                            &nbsp;&nbsp;•&nbsp;&nbsp;
+                            Last Commit: <span style={{ color: 'rgba(240,255,223,0.5)' }}>{new Date(repoData.lastCommit).toLocaleDateString()}</span>
+                        </p>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
+
+
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function Dashboard() {
     const { user, loading, isAuthenticated } = useAuth();
@@ -1136,6 +1290,7 @@ export default function Dashboard() {
                             marginBottom: -1, transition: 'all 0.15s',
                         }}>
                             {tab === 'Resume Info' && <FileText size={13} style={{ marginRight: 6, verticalAlign: 'middle' }} />}
+                            {tab === 'GitHub Research' && <Github size={13} style={{ marginRight: 6, verticalAlign: 'middle' }} />}
                             {tab}
                         </button>
                     ))}
@@ -1217,6 +1372,11 @@ export default function Dashboard() {
                 {/* ── Resume Info tab ── */}
                 {activeTab === 'Resume Info' && (
                     <ResumeInfoTab uid={user?.uid} userName={user?.fullName || user?.username || ''} />
+                )}
+
+                {/* ── GitHub Research tab ── */}
+                {activeTab === 'GitHub Research' && (
+                    <GitHubScraperTab uid={user?.uid} />
                 )}
 
                 {/* ── Assessment tab ── */}

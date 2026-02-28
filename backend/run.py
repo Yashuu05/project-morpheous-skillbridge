@@ -350,6 +350,35 @@ def parse_resume_route():
 
 
 # ----------------------------------------
+# GitHub Scrape Route
+# ----------------------------------------
+@app.route('/api/github/scrape', methods=['POST', 'OPTIONS'])
+def github_scrape_route():
+    """
+    POST /api/github/scrape
+    Body: { "url": "https://github.com/user/repo" }
+    Returns: JSON with repo metadata and AI analysis
+    """
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    body = request.get_json(force=True) or {}
+    url = body.get('url', '').strip()
+
+    if not url:
+        return jsonify({'error': 'GitHub URL is required.'}), 400
+
+    try:
+        from services.repo_scraper import scrape_github_repo
+        result = scrape_github_repo(url)
+        return jsonify(result), 200
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        return jsonify({'error': f'Scraping failed: {str(e)}'}), 500
+
+
+# ----------------------------------------
 # Error handlers
 # ----------------------------------------
 @app.errorhandler(400)
