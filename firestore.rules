@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if the user is accessing their own data
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Users collection: Allow users to read/write their own profile
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // GitHub Scrapes: Allow users to save and view their own scrapes
+    match /github_scrapes/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Resumes: Allow users to manage their own parsed resumes
+    match /resumes/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Test Scores: Allow users to save and view their assessment results
+    match /test_scores/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Career Matches: Allow users to manages their own matches
+    match /career_matches/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Roadmaps: Allow users to manage their own career roadmaps
+    match /roadmaps/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Skill Gaps: Allow users to manage their own gap analysis
+    match /skill_gaps/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // SWOT Analyses: Allow users to manage their own SWOT results
+    match /swot_analyses/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+  }
+}
