@@ -110,6 +110,11 @@ const Signup = () => {
         }
     };
 
+    // ─── Progress calculation ──────────────────────────────────────────────────
+    const fields = [formData.username, formData.password, formData.confirmPassword];
+    const filledFields = fields.filter(f => f.trim().length > 0).length;
+    const progress = Math.round((filledFields / fields.length) * 100);
+
     // ─── Signup form ───────────────────────────────────────────────────────────
     return (
         <div
@@ -155,10 +160,24 @@ const Signup = () => {
 
                         {/* Firebase-level error banner */}
                         {firebaseError && (
-                            <div className="mb-4 px-4 py-3 rounded-lg bg-red-900 bg-opacity-30 border border-red-500 border-opacity-50 text-red-400 text-sm">
+                            <div className="mb-4 px-4 py-3 rounded-lg bg-red-900 bg-opacity-30 border border-red-500 border-opacity-50 text-red-400 text-sm" style={{ animation: 'shake 0.4s ease-in-out' }}>
                                 {firebaseError}
                             </div>
                         )}
+
+                        {/* Progress Bar */}
+                        <div className="mb-6">
+                            <div className="flex justify-between items-end mb-1.5">
+                                <span className="text-[10px] uppercase tracking-wider font-bold text-[#237227] opacity-80">Signup Progress</span>
+                                <span className="text-xs font-bold text-[#F0FFDF]">{progress}%</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-[#2B2A2A] rounded-full overflow-hidden border border-[#237227] border-opacity-10">
+                                <div
+                                    className="h-full bg-[#237227] transition-all duration-500 ease-out shadow-[0_0_10px_rgba(35,114,39,0.3)]"
+                                    style={{ width: `${progress}%` }}
+                                />
+                            </div>
+                        </div>
 
                         {/* Form */}
                         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
@@ -314,6 +333,11 @@ const Signup = () => {
           0%, 100% { transform: translate(0, 0) scale(1); }
           33%  { transform: translate(20px, -20px) scale(1.05); }
           66%  { transform: translate(-10px, 15px) scale(0.97); }
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-4px); }
+          75% { transform: translateX(4px); }
         }
       `}</style>
         </div>

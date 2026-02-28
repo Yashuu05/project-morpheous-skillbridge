@@ -11,7 +11,7 @@ import {
 import {
     TrendingUp, ClipboardList, Code2, Loader2,
     FileText, UploadCloud, CheckCircle2, AlertCircle,
-    Briefcase, FolderOpen, X, RefreshCw
+    Briefcase, FolderOpen, X, RefreshCw, Camera, VideoOff
 } from 'lucide-react';
 import CareerMatchTab from './CareerMatchTab.jsx';
 import RoadmapTab from './RoadmapTab.jsx';
@@ -374,29 +374,112 @@ function AssessmentTab({ user }) {
     const [results, setResults] = useState(null);
     const [error, setError] = useState('');
 
+    // ── AI Anti-cheating state ──
+    const [cameraViolationCount, setCameraViolationCount] = useState(0);
+    const [faceVisible, setFaceVisible] = useState(true);
+    const [cameraBlocked, setCameraBlocked] = useState(false);
+    const [monitorStatus, setMonitorStatus] = useState('Initializing AI...');
+    const videoRef = useRef(null);
+    const monitorIntervalRef = useRef(null);
+    const violationTimerRef = useRef(null);
+
     // ── Anti-cheating ─────────────────────────────────────────────────────────
     const [switchCount, setSwitchCount] = useState(0);
     const [showWarning, setShowWarning] = useState(false);
-    const switchCountRef = useRef(0); // ref so listener closure always has latest value
+    const [violationType, setViolationType] = useState('');
+    const switchCountRef = useRef(0);
 
     useEffect(() => {
         if (testState !== 'testing') return;
 
+        // 1. Tab switch monitoring (existing)
         const handleVisibility = () => {
             if (document.visibilityState === 'hidden') {
                 switchCountRef.current += 1;
                 setSwitchCount(switchCountRef.current);
+                setViolationType('Tab switch detected');
                 setShowWarning(true);
-
-                if (switchCountRef.current >= 3) {
-                    // 3rd violation → sign out immediately
+                if (switchCountRef.current + cameraViolationCount >= 3) {
                     signOut(auth).then(() => navigate('/login'));
                 }
             }
         };
-
         document.addEventListener('visibilitychange', handleVisibility);
-        return () => document.removeEventListener('visibilitychange', handleVisibility);
+
+        // 2. AI Camera/Face monitoring
+        let faceDetection;
+        let camera;
+
+        const initAI = async () => {
+            if (!videoRef.current) return;
+            try {
+                // Initialize MediaPipe Face Detection
+                faceDetection = new window.FaceDetection({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`
+                });
+
+                faceDetection.setOptions({
+                    model: 'short',
+                    minDetectionConfidence: 0.5
+                });
+
+                faceDetection.onResults((results) => {
+                    const hasFace = results.detections && results.detections.length > 0;
+                    setFaceVisible(hasFace);
+
+                    // Logic for "camera blocked" is simplified: if we have zero detections and high black pixel count (not doing pixel analysis here for perf, sticking to presence)
+                    // We treat "No Face" and "Camera Closed" under the same 5-second rule as requested.
+
+                    if (!hasFace) {
+                        setMonitorStatus('No face detected / Camera blocked');
+                        if (!violationTimerRef.current) {
+                            violationTimerRef.current = setTimeout(() => {
+                                setCameraViolationCount(prev => {
+                                    const next = prev + 1;
+                                    if (next >= 3) {
+                                        signOut(auth).then(() => navigate('/login'));
+                                    } else {
+                                        setMonitorStatus(`Violation recorded! (${next}/2)`);
+                                        setViolationType('Camera/Face violation');
+                                        setShowWarning(true);
+                                    }
+                                    return next;
+                                });
+                                violationTimerRef.current = null;
+                            }, 5000);
+                        }
+                    } else {
+                        setMonitorStatus('Monitoring active');
+                        if (violationTimerRef.current) {
+                            clearTimeout(violationTimerRef.current);
+                            violationTimerRef.current = null;
+                        }
+                    }
+                });
+
+                camera = new window.Camera(videoRef.current, {
+                    onFrame: async () => {
+                        await faceDetection.send({ image: videoRef.current });
+                    },
+                    width: 320,
+                    height: 240
+                });
+
+                await camera.start();
+            } catch (err) {
+                console.error("AI Init failed", err);
+                setMonitorStatus('Camera failed');
+            }
+        };
+
+        initAI();
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibility);
+            if (camera) camera.stop();
+            if (faceDetection) faceDetection.close();
+            if (violationTimerRef.current) clearTimeout(violationTimerRef.current);
+        };
     }, [testState, navigate]);
 
     const domain = detectDomain(user?.interests);
@@ -498,6 +581,27 @@ function AssessmentTab({ user }) {
         return (
             <div style={{ maxWidth: 680, margin: '0 auto', padding: '24px 16px', position: 'relative' }}>
 
+                {/* AI Camera Preview Overlay */}
+                <div style={{
+                    position: 'fixed', bottom: 20, right: 20, width: 160, height: 120,
+                    borderRadius: 12, overflow: 'hidden', border: `2px solid ${faceVisible ? '#4ade80' : '#f87171'}`,
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.4)', zIndex: 100, background: '#111'
+                }}>
+                    <video ref={videoRef} style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} playsInline muted />
+                    <div style={{
+                        position: 'absolute', bottom: 0, left: 0, right: 0, padding: '4px 8px',
+                        background: 'rgba(0,0,0,0.6)', color: faceVisible ? '#4ade80' : '#f87171',
+                        fontSize: 9, fontWeight: 700, textAlign: 'center'
+                    }}>
+                        {monitorStatus}
+                    </div>
+                    {cameraViolationCount > 0 && (
+                        <div style={{ position: 'absolute', top: 5, left: 5, background: '#ef4444', color: '#fff', fontSize: 10, padding: '2px 6px', borderRadius: 4, fontWeight: 800 }}>
+                            Warnings: {cameraViolationCount}/2
+                        </div>
+                    )}
+                </div>
+
                 {/* ── Anti-cheat warning overlay ── */}
                 {showWarning && (
                     <div style={{
@@ -517,9 +621,14 @@ function AssessmentTab({ user }) {
                             </div>
 
                             {/* Title */}
-                            <h2 style={{ color: switchCount >= 3 ? '#ef4444' : '#fbbf24', fontSize: 20, fontWeight: 800, marginBottom: 10 }}>
-                                {switchCount >= 3 ? 'Test Terminated' : switchCount >= 2 ? 'Final Warning!' : 'Warning!'}
+                            <h2 style={{ color: switchCount + cameraViolationCount >= 3 ? '#ef4444' : '#fbbf24', fontSize: 20, fontWeight: 800, marginBottom: 10 }}>
+                                {switchCount + cameraViolationCount >= 3 ? 'Test Terminated' : switchCount + cameraViolationCount >= 2 ? 'Final Warning!' : 'Warning!'}
                             </h2>
+
+                            {/* Violation type info */}
+                            <div style={{ color: 'rgba(240,255,223,0.5)', fontSize: 12, marginBottom: 12 }}>
+                                Type detected: <strong style={{ color: '#c084fc' }}>{violationType}</strong>
+                            </div>
 
                             {/* Violation counter */}
                             <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 16 }}>
@@ -527,17 +636,17 @@ function AssessmentTab({ user }) {
                                     <div key={n} style={{
                                         width: 32, height: 32, borderRadius: '50%', display: 'flex',
                                         alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14,
-                                        background: n <= switchCount ? (switchCount >= 3 ? '#ef4444' : '#f59e0b') : 'rgba(255,255,255,0.08)',
-                                        color: n <= switchCount ? '#fff' : 'rgba(255,255,255,0.25)',
+                                        background: n <= (switchCount + cameraViolationCount) ? (switchCount + cameraViolationCount >= 3 ? '#ef4444' : '#f59e0b') : 'rgba(255,255,255,0.08)',
+                                        color: n <= (switchCount + cameraViolationCount) ? '#fff' : 'rgba(255,255,255,0.25)',
                                     }}>{n}</div>
                                 ))}
                             </div>
 
                             {/* Message */}
                             <p style={{ color: 'rgba(240,255,223,0.75)', fontSize: 14, lineHeight: 1.6, marginBottom: 24 }}>
-                                {switchCount >= 3
-                                    ? 'You switched tabs 3 times. This is against test rules. You are now being logged out.'
-                                    : `Tab switch detected (${switchCount}/2 warnings). Switching tabs during an assessment is not allowed. A third violation will log you out automatically.`
+                                {switchCount + cameraViolationCount >= 3
+                                    ? 'You have reached the maximum number of violations (3). For security and integrity, you are now being logged out.'
+                                    : `Violation detected (${switchCount + cameraViolationCount}/2 warnings). Multiple violations (tab switching or camera/face absence) will lead to an automatic logout.`
                                 }
                             </p>
 
@@ -560,10 +669,10 @@ function AssessmentTab({ user }) {
                 )}
 
                 {/* violation badge in header */}
-                {switchCount > 0 && (
+                {(switchCount > 0 || cameraViolationCount > 0) && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, padding: '6px 12px', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 8, fontSize: 12 }}>
                         <span>⚠️</span>
-                        <span style={{ color: '#fbbf24' }}>Tab-switch violations: <strong>{switchCount}/2</strong> warnings used</span>
+                        <span style={{ color: '#fbbf24' }}>Total violations: <strong>{switchCount + cameraViolationCount}/2</strong> warnings used</span>
                     </div>
                 )}
 
