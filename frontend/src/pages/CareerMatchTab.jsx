@@ -68,8 +68,7 @@ export default function CareerMatchTab({ user, initialData, testScores }) {
                 try {
                     await setDoc(doc(db, 'career_matches', uid), {
                         uid,
-                        top_matches: data.top_matches.map(m => ({ role: m.role, domain: m.domain, match_pct: m.match_pct })),
-                        all_scores: data.all_scores,
+                        ...data,
                         calculatedAt: serverTimestamp(),
                     }, { merge: true });
                     setSaved(true);
@@ -107,6 +106,22 @@ export default function CareerMatchTab({ user, initialData, testScores }) {
 
     /* ── RESULTS ── */
     const { top_matches, all_scores, formula_legend } = matchData;
+
+    if (!formula_legend || !top_matches?.[0]?.breakdown) {
+        return (
+            <div style={{ maxWidth: 640, margin: '48px auto', textAlign: 'center', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 32 }}>
+                <div style={{ fontSize: 48, marginBottom: 12 }}>🔄</div>
+                <h2 style={{ color: '#f0ffdf', fontSize: 22, marginBottom: 8 }}>Update Required</h2>
+                <p style={{ color: 'rgba(240,255,223,0.5)', fontSize: 13, marginBottom: 28, lineHeight: 1.6 }}>
+                    Your career match data is from an older version.<br />Please recalculate to view your detailed insights.
+                </p>
+                <button onClick={() => { setState('idle'); setMatchData(null); setSaved(false); setExpanded({}); }}
+                    style={{ background: 'linear-gradient(135deg,#f59e0b,#ef4444)', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 36px', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
+                    ↺ Recalculate Now
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div style={{ maxWidth: 900, margin: '0 auto', padding: '24px 16px' }}>

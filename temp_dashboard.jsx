@@ -13,24 +13,6 @@ import {
     FileText, UploadCloud, CheckCircle2, AlertCircle,
     Briefcase, FolderOpen, X, RefreshCw, Camera, VideoOff, Github
 } from 'lucide-react';
-
-class ErrorBoundary extends React.Component {
-    constructor(props) { super(props); this.state = { hasError: false, error: null }; }
-    static getDerivedStateFromError(error) { return { hasError: true, error }; }
-    componentDidCatch(error, errorInfo) { console.error("ErrorBoundary caught an error", error, errorInfo); }
-    render() {
-        if (this.state.hasError) {
-            return (
-                <div style={{ padding: 40, color: 'white' }}>
-                    <h2>Something went wrong.</h2>
-                    <pre style={{ color: 'red' }}>{this.state.error?.toString()}</pre>
-                </div>
-            );
-        }
-        return this.props.children;
-    }
-}
-
 import CareerMatchTab from './CareerMatchTab.jsx';
 import RoadmapTab from './RoadmapTab.jsx';
 
@@ -112,8 +94,9 @@ function SkillGapTab({ user, initialData, testScores }) {
             if (uid) {
                 try {
                     await setDoc(doc(db, 'skill_gaps', uid), {
-                        uid, domain,
-                        ...data,
+                        uid, domain, role: data.role,
+                        skill_results: data.skill_results,
+                        totals: data.totals,
                         calculatedAt: serverTimestamp(),
                     }, { merge: true });
                     setSaved(true);
@@ -150,22 +133,6 @@ function SkillGapTab({ user, initialData, testScores }) {
 
     // ── RESULTS ───────────────────────────────────────────────────────────────
     const { role, steps, totals, formula_legend } = gapData;
-
-    if (!steps || !formula_legend) {
-        return (
-            <div style={{ maxWidth: 620, margin: '48px auto', textAlign: 'center', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 32 }}>
-                <div style={{ fontSize: 48, marginBottom: 12 }}>🔄</div>
-                <h2 style={{ color: '#f0ffdf', fontSize: 22, marginBottom: 8 }}>Update Required</h2>
-                <p style={{ color: 'rgba(240,255,223,0.5)', fontSize: 13, marginBottom: 28, lineHeight: 1.6 }}>
-                    Your skill gap data is from an older version.<br />Please recalculate to view your detailed insights.
-                </p>
-                <button onClick={() => { setState('idle'); setGapData(null); setSaved(false); }} style={{ background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 32px', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>
-                    ↺ Recalculate Now
-                </button>
-            </div>
-        );
-    }
-
     const { readiness, total_gap, sum_weighted_gaps, sum_weights } = totals;
     const readPct = Math.round(readiness);
     const gradeColor = readPct >= 70 ? '#4ade80' : readPct >= 45 ? '#fbbf24' : '#f87171';
@@ -1381,165 +1348,163 @@ export default function Dashboard() {
             />
 
             <main style={s.main}>
-                <ErrorBoundary>
-                    {/* Page header */}
-                    <div style={{ marginBottom: 24 }}>
-                        <p style={{ fontSize: 13, color: 'rgba(240,255,223,0.45)', marginBottom: 4 }}>{dateStr}</p>
-                        <h1 style={{ fontSize: 26, fontWeight: 800, color: '#F0FFDF', margin: 0 }}>{greeting}, {displayName} 👋</h1>
-                        <p style={{ fontSize: 14, color: 'rgba(240,255,223,0.5)', marginTop: 4 }}>Here's an overview of your career progress</p>
-                    </div>
+                {/* Page header */}
+                <div style={{ marginBottom: 24 }}>
+                    <p style={{ fontSize: 13, color: 'rgba(240,255,223,0.45)', marginBottom: 4 }}>{dateStr}</p>
+                    <h1 style={{ fontSize: 26, fontWeight: 800, color: '#F0FFDF', margin: 0 }}>{greeting}, {displayName} 👋</h1>
+                    <p style={{ fontSize: 14, color: 'rgba(240,255,223,0.5)', marginTop: 4 }}>Here's an overview of your career progress</p>
+                </div>
 
-                    {/* Tab bar */}
-                    <div style={{ display: 'flex', gap: 4, marginBottom: 28, borderBottom: '1px solid rgba(35,114,39,0.15)', paddingBottom: 0 }}>
-                        {TABS.map((tab) => (
-                            <button key={tab} onClick={() => setActiveTab(tab)} style={{
-                                padding: '9px 20px', fontSize: 14, fontWeight: activeTab === tab ? 700 : 400,
-                                color: activeTab === tab ? '#4ade80' : 'rgba(240,255,223,0.5)',
-                                background: 'none', border: 'none', cursor: 'pointer',
-                                borderBottom: activeTab === tab ? '2px solid #237227' : '2px solid transparent',
-                                marginBottom: -1, transition: 'all 0.15s',
-                            }}>
-                                {tab === 'Resume Info' && <FileText size={13} style={{ marginRight: 6, verticalAlign: 'middle' }} />}
-                                {tab === 'GitHub Research' && <Github size={13} style={{ marginRight: 6, verticalAlign: 'middle' }} />}
-                                {tab}
-                            </button>
-                        ))}
-                    </div>
+                {/* Tab bar */}
+                <div style={{ display: 'flex', gap: 4, marginBottom: 28, borderBottom: '1px solid rgba(35,114,39,0.15)', paddingBottom: 0 }}>
+                    {TABS.map((tab) => (
+                        <button key={tab} onClick={() => setActiveTab(tab)} style={{
+                            padding: '9px 20px', fontSize: 14, fontWeight: activeTab === tab ? 700 : 400,
+                            color: activeTab === tab ? '#4ade80' : 'rgba(240,255,223,0.5)',
+                            background: 'none', border: 'none', cursor: 'pointer',
+                            borderBottom: activeTab === tab ? '2px solid #237227' : '2px solid transparent',
+                            marginBottom: -1, transition: 'all 0.15s',
+                        }}>
+                            {tab === 'Resume Info' && <FileText size={13} style={{ marginRight: 6, verticalAlign: 'middle' }} />}
+                            {tab === 'GitHub Research' && <Github size={13} style={{ marginRight: 6, verticalAlign: 'middle' }} />}
+                            {tab}
+                        </button>
+                    ))}
+                </div>
 
-                    {/* ── Overview tab ── */}
-                    {activeTab === 'Overview' && (
-                        <>
-                            {/* Stats row — Skills Identified only (Readiness + Assessments replaced by chart) */}
-                            <div style={s.grid3}>
-                                {[
-                                    {
-                                        label: 'Readiness Score',
-                                        val: allData.skillGaps?.totals?.readiness !== undefined
-                                            ? `${Math.round(allData.skillGaps.totals.readiness)}%`
-                                            : 'NaN',
-                                        delta: allData.skillGaps?.totals?.readiness !== undefined
-                                            ? 'Calculated from gap analysis'
-                                            : 'Perform assessment to get insights'
-                                    },
-                                    {
-                                        label: 'Assessment Avg',
-                                        val: allData.testScores?.total_score !== undefined
-                                            ? `${Math.round(allData.testScores.total_score * 100)}%`
-                                            : 'NaN',
-                                        delta: allData.testScores?.total_score !== undefined
-                                            ? `${Object.keys(allData.testScores.scores || {}).length} skills tested`
-                                            : 'Start your first assessment'
-                                    },
-                                    {
-                                        label: 'Rankings',
-                                        val: allData.careerMatches?.top_matches?.[0]
-                                            ? `#1 ${allData.careerMatches.top_matches[0].role}`
-                                            : '—',
-                                        delta: allData.careerMatches?.top_matches
-                                            ? `${allData.careerMatches.top_matches.length} matches found`
-                                            : 'Find your career match'
-                                    },
-                                ].map(({ label, val, delta }) => (
-                                    <div key={label} style={s.card}>
-                                        <div style={s.label}>{label}</div>
-                                        <div style={s.val}>{val}</div>
-                                        <div style={s.delta}>{delta}</div>
-                                    </div>
-                                ))}
-                            </div>
+                {/* ── Overview tab ── */}
+                {activeTab === 'Overview' && (
+                    <>
+                        {/* Stats row — Skills Identified only (Readiness + Assessments replaced by chart) */}
+                        <div style={s.grid3}>
+                            {[
+                                {
+                                    label: 'Readiness Score',
+                                    val: allData.skillGaps?.totals?.readiness !== undefined
+                                        ? `${Math.round(allData.skillGaps.totals.readiness)}%`
+                                        : 'NaN',
+                                    delta: allData.skillGaps?.totals?.readiness !== undefined
+                                        ? 'Calculated from gap analysis'
+                                        : 'Perform assessment to get insights'
+                                },
+                                {
+                                    label: 'Assessment Avg',
+                                    val: allData.testScores?.total_score !== undefined
+                                        ? `${Math.round(allData.testScores.total_score * 100)}%`
+                                        : 'NaN',
+                                    delta: allData.testScores?.total_score !== undefined
+                                        ? `${Object.keys(allData.testScores.scores || {}).length} skills tested`
+                                        : 'Start your first assessment'
+                                },
+                                {
+                                    label: 'Rankings',
+                                    val: allData.careerMatches?.top_matches?.[0]
+                                        ? `#1 ${allData.careerMatches.top_matches[0].role}`
+                                        : '—',
+                                    delta: allData.careerMatches?.top_matches
+                                        ? `${allData.careerMatches.top_matches.length} matches found`
+                                        : 'Find your career match'
+                                },
+                            ].map(({ label, val, delta }) => (
+                                <div key={label} style={s.card}>
+                                    <div style={s.label}>{label}</div>
+                                    <div style={s.val}>{val}</div>
+                                    <div style={s.delta}>{delta}</div>
+                                </div>
+                            ))}
+                        </div>
 
-                            {/* Profile + Interests */}
-                            <div style={s.grid2}>
-                                <div style={s.card}>
-                                    <h4 style={s.h4}>Profile Summary</h4>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                                        <div style={{ width: 48, height: 48, background: '#237227', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700, color: '#F0FFDF', flexShrink: 0 }}>{initials}</div>
-                                        <div>
-                                            <div style={{ fontWeight: 700, fontSize: 16, color: '#F0FFDF' }}>{user?.fullName || user?.username || 'Your Name'}</div>
-                                            <div style={{ fontSize: 13, color: 'rgba(240,255,223,0.55)', marginTop: 2 }}>{user?.degree || 'Aspiring Professional'}</div>
-                                            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
-                                                {user?.educationalLevel && <span style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(35,114,39,0.2)', borderRadius: 99, color: '#4ade80', border: '1px solid rgba(35,114,39,0.3)' }}>{user.educationalLevel}</span>}
-                                                {user?.skillLevel && <span style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(168,85,247,0.15)', borderRadius: 99, color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)' }}>{user.skillLevel}</span>}
-                                                {user?.currentYear && <span style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(59,130,246,0.12)', borderRadius: 99, color: '#60a5fa', border: '1px solid rgba(59,130,246,0.2)' }}>Year {user.currentYear}</span>}
-                                            </div>
+                        {/* Profile + Interests */}
+                        <div style={s.grid2}>
+                            <div style={s.card}>
+                                <h4 style={s.h4}>Profile Summary</h4>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                    <div style={{ width: 48, height: 48, background: '#237227', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700, color: '#F0FFDF', flexShrink: 0 }}>{initials}</div>
+                                    <div>
+                                        <div style={{ fontWeight: 700, fontSize: 16, color: '#F0FFDF' }}>{user?.fullName || user?.username || 'Your Name'}</div>
+                                        <div style={{ fontSize: 13, color: 'rgba(240,255,223,0.55)', marginTop: 2 }}>{user?.degree || 'Aspiring Professional'}</div>
+                                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+                                            {user?.educationalLevel && <span style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(35,114,39,0.2)', borderRadius: 99, color: '#4ade80', border: '1px solid rgba(35,114,39,0.3)' }}>{user.educationalLevel}</span>}
+                                            {user?.skillLevel && <span style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(168,85,247,0.15)', borderRadius: 99, color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)' }}>{user.skillLevel}</span>}
+                                            {user?.currentYear && <span style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(59,130,246,0.12)', borderRadius: 99, color: '#60a5fa', border: '1px solid rgba(59,130,246,0.2)' }}>Year {user.currentYear}</span>}
                                         </div>
                                     </div>
                                 </div>
-                                <div style={s.card}>
-                                    <h4 style={s.h4}>Interests</h4>
-                                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                                        {interests.map((i) => (
-                                            <span key={i} style={{ fontSize: 12, padding: '5px 12px', background: 'rgba(35,114,39,0.15)', border: '1px solid rgba(35,114,39,0.3)', borderRadius: 99, color: '#86efac' }}>{i}</span>
-                                        ))}
-                                    </div>
+                            </div>
+                            <div style={s.card}>
+                                <h4 style={s.h4}>Interests</h4>
+                                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                    {interests.map((i) => (
+                                        <span key={i} style={{ fontSize: 12, padding: '5px 12px', background: 'rgba(35,114,39,0.15)', border: '1px solid rgba(35,114,39,0.3)', borderRadius: 99, color: '#86efac' }}>{i}</span>
+                                    ))}
                                 </div>
                             </div>
+                        </div>
 
-                            {/* Skills + Progress */}
-                            <div style={s.grid2}>
-                                <div style={s.card}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                                        <h4 style={{ ...s.h4, marginBottom: 0 }}>Skills</h4>
-                                        <Code2 size={16} color="rgba(240,255,223,0.3)" />
-                                    </div>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                                        {skills.map((sk) => (
-                                            <span key={sk} style={{ fontSize: 12, padding: '4px 10px', background: 'rgba(240,255,223,0.06)', border: '1px solid rgba(240,255,223,0.12)', borderRadius: 8, color: 'rgba(240,255,223,0.75)' }}>{sk}</span>
-                                        ))}
-                                    </div>
+                        {/* Skills + Progress */}
+                        <div style={s.grid2}>
+                            <div style={s.card}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                                    <h4 style={{ ...s.h4, marginBottom: 0 }}>Skills</h4>
+                                    <Code2 size={16} color="rgba(240,255,223,0.3)" />
                                 </div>
-                                <div style={s.card}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                                        <h4 style={{ ...s.h4, marginBottom: 0 }}>Progress Overview</h4>
-                                        <TrendingUp size={16} color="rgba(240,255,223,0.3)" />
-                                    </div>
-                                    {getProgressData().map((p) => <ProgressBar key={p.label} {...p} />)}
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                                    {skills.map((sk) => (
+                                        <span key={sk} style={{ fontSize: 12, padding: '4px 10px', background: 'rgba(240,255,223,0.06)', border: '1px solid rgba(240,255,223,0.12)', borderRadius: 8, color: 'rgba(240,255,223,0.75)' }}>{sk}</span>
+                                    ))}
                                 </div>
                             </div>
+                            <div style={s.card}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                                    <h4 style={{ ...s.h4, marginBottom: 0 }}>Progress Overview</h4>
+                                    <TrendingUp size={16} color="rgba(240,255,223,0.3)" />
+                                </div>
+                                {getProgressData().map((p) => <ProgressBar key={p.label} {...p} />)}
+                            </div>
+                        </div>
 
-                            {/* Assessment Score Chart */}
-                            <ScoreBarChart data={allData.testScores} s={s} />
+                        {/* Assessment Score Chart */}
+                        <ScoreBarChart data={allData.testScores} s={s} />
 
-                        </>
-                    )}
+                    </>
+                )}
 
-                    {/* ── Resume Info tab ── */}
-                    {activeTab === 'Resume Info' && (
-                        <ResumeInfoTab uid={user?.uid} userName={user?.fullName || user?.username || ''} initialData={allData.resumes} />
-                    )}
+                {/* ── Resume Info tab ── */}
+                {activeTab === 'Resume Info' && (
+                    <ResumeInfoTab uid={user?.uid} userName={user?.fullName || user?.username || ''} initialData={allData.resumes} />
+                )}
 
-                    {/* ── GitHub Research tab ── */}
-                    {activeTab === 'GitHub Research' && (
-                        <GitHubScraperTab uid={user?.uid} initialData={allData.githubScrapes} />
-                    )}
+                {/* ── GitHub Research tab ── */}
+                {activeTab === 'GitHub Research' && (
+                    <GitHubScraperTab uid={user?.uid} initialData={allData.githubScrapes} />
+                )}
 
-                    {/* ── Assessment tab ── */}
-                    {activeTab === 'Assessment' && (
-                        <AssessmentTab user={user} />
-                    )}
+                {/* ── Assessment tab ── */}
+                {activeTab === 'Assessment' && (
+                    <AssessmentTab user={user} />
+                )}
 
-                    {/* ── Skill Gap tab ── */}
-                    {activeTab === 'Skill Gap' && (
-                        <SkillGapTab user={user} initialData={allData.skillGaps} testScores={allData.testScores} />
-                    )}
+                {/* ── Skill Gap tab ── */}
+                {activeTab === 'Skill Gap' && (
+                    <SkillGapTab user={user} initialData={allData.skillGaps} testScores={allData.testScores} />
+                )}
 
-                    {/* ── SWOT Analysis tab ── */}
-                    {activeTab === 'SWOT Analysis' && (
-                        <SWOTTab user={user} initialData={allData.swot} skillGaps={allData.skillGaps} testScores={allData.testScores} />
-                    )}
+                {/* ── SWOT Analysis tab ── */}
+                {activeTab === 'SWOT Analysis' && (
+                    <SWOTTab user={user} initialData={allData.swot} skillGaps={allData.skillGaps} testScores={allData.testScores} />
+                )}
 
-                    {/* ── Career Match tab ── */}
-                    {activeTab === 'Career Match' && (
-                        <CareerMatchTab user={user} initialData={allData.careerMatches} testScores={allData.testScores} />
-                    )}
+                {/* ── Career Match tab ── */}
+                {activeTab === 'Career Match' && (
+                    <CareerMatchTab user={user} initialData={allData.careerMatches} testScores={allData.testScores} />
+                )}
 
-                    {/* ── Roadmap tab ── */}
-                    {activeTab === 'Roadmap' && (
-                        <RoadmapTab user={user} initialData={allData.roadmaps} careerMatches={allData.careerMatches} testScores={allData.testScores} skillGaps={allData.skillGaps} swot={allData.swot} />
-                    )}
-                </ErrorBoundary>
+                {/* ── Roadmap tab ── */}
+                {activeTab === 'Roadmap' && (
+                    <RoadmapTab user={user} initialData={allData.roadmaps} careerMatches={allData.careerMatches} testScores={allData.testScores} skillGaps={allData.skillGaps} swot={allData.swot} />
+                )}
             </main>
-        </div >
+        </div>
     );
 }
 

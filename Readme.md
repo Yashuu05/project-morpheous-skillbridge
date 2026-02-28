@@ -79,6 +79,13 @@
 ![roadmap preview](assets/roadmap.png)
 
 ---
+
+### Minnd Map
+
+![minf map preview](assets/mind_map.jpeg)
+
+---
+
 ### Getting Started
 
 - Prerequisites
