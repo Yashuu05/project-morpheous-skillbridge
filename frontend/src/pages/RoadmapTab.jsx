@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Loader2 } from 'lucide-react';
+import { Loader2, FileText, Download } from 'lucide-react';
 
 /* ─── helper: resource icon ─────────────────────────────────────────────────── */
 const RESOURCE_ICONS = { book: '📚', course: '🎓', docs: '📄', youtube: '▶️', tool: '🛠️' };
@@ -292,6 +292,64 @@ export default function RoadmapTab({ user }) {
         setGeneratingFor(null);
     };
 
+    const downloadAsText = () => {
+        if (!roadmapData) return;
+        let text = `SKILLBRIDGE CAREER ROADMAP: ${roadmapData.role.toUpperCase()}\n`;
+        text += `================================================================\n\n`;
+        text += `Summary: ${roadmapData.summary}\n`;
+        text += `Total Duration: ${roadmapData.total_duration}\n\n`;
+
+        roadmapData.phases.forEach((phase) => {
+            text += `PHASE ${phase.phase_number}: ${phase.title}\n`;
+            text += `Duration: ${phase.duration}\n`;
+            text += `----------------------------------------------------------------\n`;
+            if (phase.goals && phase.goals.length > 0) {
+                text += `Goals:\n`;
+                phase.goals.forEach(g => text += ` - ${g}\n`);
+            }
+            if (phase.skills_to_learn && phase.skills_to_learn.length > 0) {
+                text += `Skills:\n - ${phase.skills_to_learn.join(', ')}\n`;
+            }
+            if (phase.projects && phase.projects.length > 0) {
+                text += `Projects:\n`;
+                phase.projects.forEach(p => {
+                    text += ` * ${p.name}: ${p.description}\n`;
+                    if (p.tech_stack) text += `   Tech Stack: ${p.tech_stack.join(', ')}\n`;
+                });
+            }
+            if (phase.resources && phase.resources.length > 0) {
+                text += `Resources:\n`;
+                phase.resources.forEach(r => text += ` > ${r.title} (${r.type}): ${r.url_or_platform}\n`);
+            }
+            text += `\n`;
+        });
+
+        if (roadmapData.final_milestones && roadmapData.final_milestones.length > 0) {
+            text += `FINAL MILESTONES:\n`;
+            roadmapData.final_milestones.forEach(m => text += ` ✦ ${m}\n`);
+            text += `\n`;
+        }
+
+        if (roadmapData.job_ready_checklist && roadmapData.job_ready_checklist.length > 0) {
+            text += `JOB-READY CHECKLIST:\n`;
+            roadmapData.job_ready_checklist.forEach(i => text += ` [ ] ${i}\n`);
+        }
+
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `SkillBridge_Roadmap_${roadmapData.role.replace(/\s+/g, '_')}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    const downloadAsPDF = () => {
+        window.print();
+    };
+
     /* ── Loading career matches ── */
     if (loadingMatches) return (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 320, flexDirection: 'column', gap: 16 }}>
@@ -352,15 +410,29 @@ export default function RoadmapTab({ user }) {
                     <p style={{ color: 'rgba(240,255,223,0.7)', fontSize: 14 }}>Gemini is crafting your personalised roadmap for <strong style={{ color: '#c084fc', textTransform: 'capitalize' }}>{activeRole}</strong>…</p>
                     <p style={{ color: 'rgba(240,255,223,0.35)', fontSize: 12 }}>This may take 15–30 seconds</p>
                 </div>
-            ) : !roadmapData ? (
-                <div style={{ border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 14, padding: 40, textAlign: 'center' }}>
-                    <div style={{ fontSize: 36, marginBottom: 10 }}>✨</div>
-                    <p style={{ color: 'rgba(240,255,223,0.5)', fontSize: 14 }}>
-                        Click <strong>"Generate Roadmap"</strong> on any card above to get your AI-powered career roadmap.
-                    </p>
-                </div>
             ) : (
-                <div>
+                <div id="roadmap-content">
+                    <style>{`
+                        @media print {
+                            body * { visibility: hidden; }
+                            #roadmap-content, #roadmap-content * { visibility: visible; }
+                            #roadmap-content {
+                                position: absolute;
+                                left: 0;
+                                top: 0;
+                                width: 100%;
+                                background: white !important;
+                                color: black !important;
+                                padding: 20px;
+                            }
+                            .no-print { display: none !important; }
+                            #roadmap-content div, #roadmap-content span, #roadmap-content h2, #roadmap-content h4, #roadmap-content p, #roadmap-content li {
+                                color: black !important;
+                                background: transparent !important;
+                                border-color: #ddd !important;
+                            }
+                        }
+                    `}</style>
                     {/* Roadmap header */}
                     <div style={{ background: 'rgba(168,85,247,0.09)', border: '1px solid rgba(168,85,247,0.25)', borderRadius: 14, padding: '18px 22px', marginBottom: 20 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
@@ -370,8 +442,18 @@ export default function RoadmapTab({ user }) {
                                 </div>
                                 <div style={{ color: 'rgba(240,255,223,0.5)', fontSize: 12 }}>⏱ Total Duration: <strong style={{ color: '#f0ffdf' }}>{roadmapData.total_duration}</strong></div>
                             </div>
-                            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                            <div className="no-print" style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                                 {saved[activeRole] && <span style={{ color: '#4ade80', fontSize: 12 }}>✓ Saved</span>}
+                                <button
+                                    onClick={downloadAsText}
+                                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 7, border: '1px solid rgba(168,85,247,0.3)', background: 'transparent', color: '#c084fc', fontSize: 12, cursor: 'pointer', fontWeight: 600 }}>
+                                    <FileText size={14} /> Download TXT
+                                </button>
+                                <button
+                                    onClick={downloadAsPDF}
+                                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 7, border: '1px solid rgba(35,114,39,0.3)', background: 'transparent', color: '#4ade80', fontSize: 12, cursor: 'pointer', fontWeight: 600 }}>
+                                    <Download size={14} /> Download PDF
+                                </button>
                                 <button
                                     onClick={() => generateRoadmap(careerMatches.find(m => m.role === activeRole))}
                                     style={{ padding: '6px 14px', borderRadius: 7, border: '1px solid rgba(168,85,247,0.3)', background: 'transparent', color: '#c084fc', fontSize: 12, cursor: 'pointer', fontWeight: 600 }}>
