@@ -5,7 +5,7 @@ import { Loader2, FileText, Download } from 'lucide-react';
 
 /* ─── helper: resource icon ─────────────────────────────────────────────────── */
 const RESOURCE_ICONS = { book: '📚', course: '🎓', docs: '📄', youtube: '▶️', tool: '🛠️' };
-const PHASE_COLORS = ['#a855f7', '#60a5fa', '#4ade80', '#fbbf24'];
+const PHASE_COLORS = ['#c084fc', '#60a5fa', '#4ade80', '#fbbf24'];
 const RANK_MEDALS = ['🥇', '🥈', '🥉'];
 const RANK_COLORS = ['#ffd700', '#c0c0c0', '#cd7f32'];
 
@@ -102,8 +102,8 @@ function PhaseSection({ phase, idx }) {
                     {phase.phase_number}
                 </div>
                 <div style={{ flex: 1 }}>
-                    <div style={{ color, fontSize: 15, fontWeight: 800 }}>{phase.title}</div>
-                    <div style={{ color: 'rgba(240,255,223,0.4)', fontSize: 11, marginTop: 2 }}>⏱ {phase.duration}</div>
+                    <div style={{ color: idx === 0 ? '#e9d5ff' : color, fontSize: 15, fontWeight: 800 }}>{phase.title}</div>
+                    <div style={{ color: 'rgba(240,255,223,0.45)', fontSize: 11, marginTop: 2 }}>⏱ {phase.duration}</div>
                 </div>
                 <span style={{ color, fontSize: 18 }}>{open ? '▲' : '▼'}</span>
             </div>
