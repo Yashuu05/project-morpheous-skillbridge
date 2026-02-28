@@ -177,44 +177,65 @@ function PhaseSection({ phase, idx }) {
 }
 
 /* ─── Main RoadmapTab ─────────────────────────────────────────────────────── */
-export default function RoadmapTab({ user }) {
-    const [careerMatches, setCareerMatches] = useState([]);
-    const [loadingMatches, setLoadingMatches] = useState(true);
+export default function RoadmapTab({ user, initialData, careerMatches: cmProps, testScores, skillGaps, swot }) {
+    const [careerMatches, setCareerMatches] = useState(cmProps && cmProps.top_matches ? cmProps.top_matches : []);
+    const [loadingMatches, setLoadingMatches] = useState(!(cmProps && cmProps.top_matches));
     const [generatingFor, setGeneratingFor] = useState(null);  // role being generated
-    const [roadmaps, setRoadmaps] = useState({});     // { role: roadmapData }
-    const [activeRole, setActiveRole] = useState(null);
+    const [roadmaps, setRoadmaps] = useState(initialData && initialData.roadmaps ? initialData.roadmaps : {});
+    const [activeRole, setActiveRole] = useState((cmProps && cmProps.top_matches?.[0]?.role) || null);
     const [errMsg, setErrMsg] = useState('');
     const [saved, setSaved] = useState({});
 
+    // Sync with real-time career matches
+    useEffect(() => {
+        if (cmProps && cmProps.top_matches) {
+            setCareerMatches(cmProps.top_matches);
+            if (!activeRole) setActiveRole(cmProps.top_matches[0]?.role);
+            setLoadingMatches(false);
+        }
+    }, [cmProps]);
+
+    // Sync with real-time roadmaps
+    useEffect(() => {
+        if (initialData && initialData.roadmaps) {
+            setRoadmaps(initialData.roadmaps);
+            const s = {};
+            Object.keys(initialData.roadmaps).forEach(k => { s[k] = true; });
+            setSaved(s);
+        }
+    }, [initialData]);
+
     const uid = user?.uid;
 
-    /* Load career matches + any saved roadmaps from Firestore */
+    /* Load career matches + any saved roadmaps if not provided by props */
     useEffect(() => {
-        if (!uid) return;
+        if (!uid || (cmProps && initialData)) return;
         const load = async () => {
             try {
-                // Career matches
-                const cmSnap = await getDoc(doc(db, 'career_matches', uid));
-                if (cmSnap.exists()) {
-                    const data = cmSnap.data();
-                    setCareerMatches(data.top_matches || []);
-                    setActiveRole(data.top_matches?.[0]?.role || null);
+                if (!cmProps) {
+                    const cmSnap = await getDoc(doc(db, 'career_matches', uid));
+                    if (cmSnap.exists()) {
+                        const data = cmSnap.data();
+                        setCareerMatches(data.top_matches || []);
+                        setActiveRole(data.top_matches?.[0]?.role || null);
+                    }
                 }
-                // Saved roadmaps
-                const rmSnap = await getDoc(doc(db, 'roadmaps', uid));
-                if (rmSnap.exists()) {
-                    setRoadmaps(rmSnap.data().roadmaps || {});
-                    setSaved(prev => {
-                        const s = { ...prev };
-                        Object.keys(rmSnap.data().roadmaps || {}).forEach(k => { s[k] = true; });
-                        return s;
-                    });
+                if (!initialData) {
+                    const rmSnap = await getDoc(doc(db, 'roadmaps', uid));
+                    if (rmSnap.exists()) {
+                        setRoadmaps(rmSnap.data().roadmaps || {});
+                        setSaved(prev => {
+                            const s = { ...prev };
+                            Object.keys(rmSnap.data().roadmaps || {}).forEach(k => { s[k] = true; });
+                            return s;
+                        });
+                    }
                 }
             } catch (e) { console.warn('Firestore load', e); }
             setLoadingMatches(false);
         };
         load();
-    }, [uid]);
+    }, [uid, cmProps, initialData]);
 
 
     const buildPayload = async (match) => {
@@ -227,20 +248,32 @@ export default function RoadmapTab({ user }) {
             university: user?.university || '',
             currentYear: user?.currentYear || '',
         };
-        let test_scores = {}, skill_results = {}, totals = {}, swot = {};
-        try {
-            const tsSnap = await getDoc(doc(db, 'test_scores', uid));
-            if (tsSnap.exists()) test_scores = tsSnap.data().scores || {};
-        } catch (e) { }
-        try {
-            const sgSnap = await getDoc(doc(db, 'skill_gaps', uid));
-            if (sgSnap.exists()) { skill_results = sgSnap.data().skill_results || {}; totals = sgSnap.data().totals || {}; }
-        } catch (e) { }
-        try {
-            const swotSnap = await getDoc(doc(db, 'swot_analyses', uid));
-            if (swotSnap.exists()) swot = swotSnap.data() || {};
-        } catch (e) { }
-        return { role: match.role, match_pct: match.match_pct, profile, test_scores, skill_results, totals, swot };
+
+        let scores = testScores?.scores || {};
+        if (!testScores || Object.keys(testScores).length === 0) {
+            try {
+                const tsSnap = await getDoc(doc(db, 'test_scores', uid));
+                if (tsSnap.exists()) scores = tsSnap.data().scores || {};
+            } catch (e) { }
+        }
+
+        let skill_results = skillGaps?.skill_results || {}, totals = skillGaps?.totals || {};
+        if (!skillGaps || Object.keys(skillGaps).length === 0) {
+            try {
+                const sgSnap = await getDoc(doc(db, 'skill_gaps', uid));
+                if (sgSnap.exists()) { skill_results = sgSnap.data().skill_results || {}; totals = sgSnap.data().totals || {}; }
+            } catch (e) { }
+        }
+
+        let swotData = swot || {};
+        if (!swot || Object.keys(swot).length === 0) {
+            try {
+                const swotSnap = await getDoc(doc(db, 'swot_analyses', uid));
+                if (swotSnap.exists()) swotData = swotSnap.data() || {};
+            } catch (e) { }
+        }
+
+        return { role: match.role, match_pct: match.match_pct, profile, test_scores: scores, skill_results, totals, swot: swotData };
     };
 
     const generateRoadmap = async (match) => {

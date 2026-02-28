@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar.jsx';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { signOut } from 'firebase/auth';
 import {
@@ -38,20 +38,7 @@ function ProgressBar({ label, value, color = 'blue' }) {
     );
 }
 
-// ─── Static demo data ─────────────────────────────────────────────────────────
-const PROGRESS = [
-    { label: 'Technical Skills', value: 74, color: 'blue' },
-    { label: 'Soft Skills', value: 60, color: 'purple' },
-    { label: 'Career Readiness', value: 52, color: 'amber' },
-    { label: 'Certifications', value: 33, color: 'green' },
-];
-
-const ASSESSMENTS = [
-    { name: 'Data Structures & Algorithms', date: 'Feb 24, 2026', score: '88%', status: 'pass' },
-    { name: 'Machine Learning Fundamentals', date: 'Feb 20, 2026', score: '74%', status: 'pass' },
-    { name: 'System Design', date: 'Feb 15, 2026', score: '61%', status: 'fail' },
-    { name: 'Behavioral Assessment', date: 'Feb 10, 2026', score: '–', status: 'pending' },
-];
+// ─── Status Styles ────────────────────────────────────────────────────────
 
 const STATUS_COLOR = { pass: '#4ade80', fail: '#f87171', pending: '#fbbf24' };
 const TABS = ['Overview', 'Resume Info', 'GitHub Research', 'Assessment', 'Skill Gap', 'SWOT Analysis', 'Career Match', 'Roadmap'];
@@ -64,23 +51,33 @@ const STATUS_STYLE = {
 };
 
 // ─── Skill Gap Tab ────────────────────────────────────────────────────────────
-function SkillGapTab({ user }) {
-    const [state, setState] = useState('idle');
-    const [gapData, setGapData] = useState(null);
+function SkillGapTab({ user, initialData, testScores }) {
+    const [state, setState] = useState(initialData && Object.keys(initialData).length > 0 ? 'done' : 'idle');
+    const [gapData, setGapData] = useState(initialData && Object.keys(initialData).length > 0 ? initialData : null);
     const [errMsg, setErrMsg] = useState('');
     const [saved, setSaved] = useState(false);
+
+    // Sync with real-time data if it arrives
+    useEffect(() => {
+        if (initialData && Object.keys(initialData).length > 0) {
+            setGapData(initialData);
+            setState('done');
+        }
+    }, [initialData]);
 
     const uid = user?.uid;
     const domain = detectDomain(user?.interests);
 
     const runAnalysis = async () => {
         setState('loading'); setErrMsg('');
-        // 1. Read user test_scores from Firestore
-        let scores = {};
-        try {
-            const snap = await getDoc(doc(db, 'test_scores', uid));
-            if (snap.exists()) scores = snap.data().scores || {};
-        } catch (e) { console.warn('Firestore read', e); }
+        // 1. Use testScores from props if available, else read from Firestore
+        let scores = testScores?.scores || {};
+        if (!testScores || Object.keys(testScores).length === 0) {
+            try {
+                const snap = await getDoc(doc(db, 'test_scores', uid));
+                if (snap.exists()) scores = snap.data().scores || {};
+            } catch (e) { console.warn('Firestore read', e); }
+        }
 
         // 2. Call backend
         try {
@@ -253,25 +250,35 @@ function SkillGapTab({ user }) {
 }
 
 // ─── Score Bar Chart (reads from Firestore test_scores) ──────────────────────
-function ScoreBarChart({ uid, s }) {
-    const [chartData, setChartData] = useState(null); // null=loading, []=no data
-    const [domain, setDomain] = useState('');
-    const [totalScore, setTotalScore] = useState(null);
+function ScoreBarChart({ data, s }) {
+    if (!data) {
+        return (
+            <div style={s.card}>
+                <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Loader2 size={24} color='#3b82f6' style={{ animation: 'spin 1s linear infinite' }} />
+                </div>
+            </div>
+        );
+    }
 
-    React.useEffect(() => {
-        if (!uid) { setChartData([]); return; }
-        getDoc(doc(db, 'test_scores', uid)).then(snap => {
-            if (!snap.exists()) { setChartData([]); return; }
-            const data = snap.data();
-            setDomain(data.domain || '');
-            setTotalScore(data.total_score ?? null);
-            const rows = Object.entries(data.scores || {}).map(([skill, score]) => ({
-                skill: skill.charAt(0).toUpperCase() + skill.slice(1),
-                score: Math.round(score * 100),
-            }));
-            setChartData(rows);
-        }).catch(() => setChartData([]));
-    }, [uid]);
+    if (Object.keys(data).length === 0) {
+        return (
+            <div style={s.card}>
+                <div style={{ height: 180, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                    <ClipboardList size={36} color='rgba(240,255,223,0.15)' />
+                    <p style={{ color: 'rgba(240,255,223,0.4)', fontSize: 13, margin: 0 }}>No assessment data yet</p>
+                    <p style={{ color: 'rgba(240,255,223,0.25)', fontSize: 12, margin: 0 }}>Go to the Assessment tab to take your first test</p>
+                </div>
+            </div>
+        );
+    }
+
+    const domain = data.domain || '';
+    const totalScore = data.total_score ?? null;
+    const rows = Object.entries(data.scores || {}).map(([skill, score]) => ({
+        skill: skill.charAt(0).toUpperCase() + skill.slice(1),
+        score: Math.round(score * 100),
+    }));
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (!active || !payload?.length) return null;
@@ -300,45 +307,29 @@ function ScoreBarChart({ uid, s }) {
                 </div>
             </div>
 
-            {chartData === null && (
-                <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Loader2 size={24} color='#3b82f6' style={{ animation: 'spin 1s linear infinite' }} />
-                </div>
-            )}
-
-            {chartData !== null && chartData.length === 0 && (
-                <div style={{ height: 180, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-                    <ClipboardList size={36} color='rgba(240,255,223,0.15)' />
-                    <p style={{ color: 'rgba(240,255,223,0.4)', fontSize: 13, margin: 0 }}>No assessment data yet</p>
-                    <p style={{ color: 'rgba(240,255,223,0.25)', fontSize: 12, margin: 0 }}>Go to the Assessment tab to take your first test</p>
-                </div>
-            )}
-
-            {chartData !== null && chartData.length > 0 && (
-                <ResponsiveContainer width="100%" height={240}>
-                    <BarChart data={chartData} margin={{ top: 8, right: 16, left: -10, bottom: 48 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(240,255,223,0.07)" vertical={false} />
-                        <XAxis
-                            dataKey="skill"
-                            tick={{ fill: 'rgba(240,255,223,0.55)', fontSize: 11 }}
-                            angle={-35}
-                            textAnchor="end"
-                            interval={0}
-                            axisLine={{ stroke: 'rgba(240,255,223,0.1)' }}
-                            tickLine={false}
-                        />
-                        <YAxis
-                            domain={[0, 100]}
-                            tickFormatter={v => `${v}%`}
-                            tick={{ fill: 'rgba(240,255,223,0.45)', fontSize: 11 }}
-                            axisLine={false}
-                            tickLine={false}
-                        />
-                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(59,130,246,0.06)' }} />
-                        <Bar dataKey="score" fill="#3b82f6" radius={[6, 6, 0, 0]} maxBarSize={40} />
-                    </BarChart>
-                </ResponsiveContainer>
-            )}
+            <ResponsiveContainer width="100%" height={240}>
+                <BarChart data={rows} margin={{ top: 8, right: 16, left: -10, bottom: 48 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(240,255,223,0.07)" vertical={false} />
+                    <XAxis
+                        dataKey="skill"
+                        tick={{ fill: 'rgba(240,255,223,0.55)', fontSize: 11 }}
+                        angle={-35}
+                        textAnchor="end"
+                        interval={0}
+                        axisLine={{ stroke: 'rgba(240,255,223,0.1)' }}
+                        tickLine={false}
+                    />
+                    <YAxis
+                        domain={[0, 100]}
+                        tickFormatter={v => `${v}%`}
+                        tick={{ fill: 'rgba(240,255,223,0.45)', fontSize: 11 }}
+                        axisLine={false}
+                        tickLine={false}
+                    />
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(59,130,246,0.06)' }} />
+                    <Bar dataKey="score" fill="#3b82f6" radius={[6, 6, 0, 0]} maxBarSize={40} />
+                </BarChart>
+            </ResponsiveContainer>
         </div>
     );
 }
@@ -805,13 +796,19 @@ function AssessmentTab({ user }) {
 }
 
 
-function ResumeInfoTab({ uid, userName }) {
+function ResumeInfoTab({ uid, userName, initialData }) {
     const fileInputRef = useRef(null);
     const [dragging, setDragging] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [resumeData, setResumeData] = useState(null);
+    const [resumeData, setResumeData] = useState(initialData && Object.keys(initialData).length > 0 ? initialData : null);
     const [error, setError] = useState('');
     const [fileName, setFileName] = useState('');
+
+    useEffect(() => {
+        if (initialData && Object.keys(initialData).length > 0) {
+            setResumeData(initialData);
+        }
+    }, [initialData]);
 
     const ALLOWED_EXT = '.pdf';
     const BLOCKED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'video/mp4', 'image/gif', 'image/webp'];
@@ -1071,11 +1068,17 @@ function ResumeInfoTab({ uid, userName }) {
 }
 
 
-function GitHubScraperTab({ uid }) {
+function GitHubScraperTab({ uid, initialData }) {
     const [url, setUrl] = useState('');
     const [scraping, setScraping] = useState(false);
-    const [repoData, setRepoData] = useState(null);
+    const [repoData, setRepoData] = useState(initialData && Object.keys(initialData).length > 0 ? initialData : null);
     const [error, setError] = useState('');
+
+    useEffect(() => {
+        if (initialData && Object.keys(initialData).length > 0) {
+            setRepoData(initialData);
+        }
+    }, [initialData]);
 
     const handleScrape = async () => {
         if (!url.trim()) { setError('Please enter a GitHub URL.'); return; }
@@ -1230,6 +1233,47 @@ export default function Dashboard() {
     const { user, loading, isAuthenticated } = useAuth();
     const [collapsed, setCollapsed] = useState(false);
     const [activeTab, setActiveTab] = useState('Overview');
+    const [allData, setAllData] = useState({
+        testScores: null,
+        skillGaps: null,
+        swot: null,
+        careerMatches: null,
+        roadmaps: null,
+        resumes: null,
+        githubScrapes: null
+    });
+
+    const uid = user?.uid;
+
+    useEffect(() => {
+        if (!uid) return;
+
+        const unsubscribers = [
+            onSnapshot(doc(db, 'test_scores', uid), (snap) => {
+                setAllData(prev => ({ ...prev, testScores: snap.exists() ? snap.data() : {} }));
+            }),
+            onSnapshot(doc(db, 'skill_gaps', uid), (snap) => {
+                setAllData(prev => ({ ...prev, skillGaps: snap.exists() ? snap.data() : {} }));
+            }),
+            onSnapshot(doc(db, 'swot_analyses', uid), (snap) => {
+                setAllData(prev => ({ ...prev, swot: snap.exists() ? snap.data() : {} }));
+            }),
+            onSnapshot(doc(db, 'career_matches', uid), (snap) => {
+                setAllData(prev => ({ ...prev, careerMatches: snap.exists() ? snap.data() : {} }));
+            }),
+            onSnapshot(doc(db, 'roadmaps', uid), (snap) => {
+                setAllData(prev => ({ ...prev, roadmaps: snap.exists() ? snap.data() : {} }));
+            }),
+            onSnapshot(doc(db, 'resumes', uid), (snap) => {
+                setAllData(prev => ({ ...prev, resumes: snap.exists() ? snap.data() : {} }));
+            }),
+            onSnapshot(doc(db, 'github_scrapes', uid), (snap) => {
+                setAllData(prev => ({ ...prev, githubScrapes: snap.exists() ? snap.data() : {} }));
+            })
+        ];
+
+        return () => unsubscribers.forEach(unsub => unsub());
+    }, [uid]);
 
     if (loading) {
         return (
@@ -1242,6 +1286,38 @@ export default function Dashboard() {
     if (!isAuthenticated) return <Navigate to="/login" replace />;
 
     const sidebarWidth = collapsed ? 64 : 220;
+    const getProgressData = () => {
+        const stats = [];
+
+        // 1. Technical Skills (Average from assessments)
+        const techScore = allData.testScores?.total_score !== undefined
+            ? Math.round(allData.testScores.total_score * 100)
+            : 0;
+        stats.push({ label: 'Technical Skills', value: techScore, color: 'blue' });
+
+        // 2. Career Readiness (From gap analysis)
+        const readiness = allData.skillGaps?.totals?.readiness !== undefined
+            ? Math.round(allData.skillGaps.totals.readiness)
+            : 0;
+        stats.push({ label: 'Career Readiness', value: readiness, color: 'amber' });
+
+        // 3. Market Alignment (Top match percentage)
+        const matchPct = allData.careerMatches?.top_matches?.[0]?.match_pct !== undefined
+            ? allData.careerMatches.top_matches[0].match_pct
+            : 0;
+        stats.push({ label: 'Market Alignment', value: matchPct, color: 'purple' });
+
+        // 4. Profile Strength (Heuristic)
+        let strength = 0;
+        if (allData.resumes && Object.keys(allData.resumes).length > 0) strength += 25;
+        if (allData.githubScrapes && Object.keys(allData.githubScrapes).length > 0) strength += 25;
+        if (allData.testScores && Object.keys(allData.testScores).length > 0) strength += 25;
+        if (allData.skillGaps && Object.keys(allData.skillGaps).length > 0) strength += 25;
+        stats.push({ label: 'Profile Strength', value: strength, color: 'green' });
+
+        return stats;
+    };
+
     const initials = user?.username?.slice(0, 2).toUpperCase() ?? '??';
     const displayName = user?.fullName || user?.username || 'there';
     const hour = new Date().getHours();
@@ -1302,9 +1378,33 @@ export default function Dashboard() {
                         {/* Stats row — Skills Identified only (Readiness + Assessments replaced by chart) */}
                         <div style={s.grid3}>
                             {[
-                                { label: 'Skills Identified', val: skills.length, delta: `${skills.length} skills on profile` },
-                                { label: 'Interests', val: interests.length, delta: interests.slice(0, 2).join(' · ') || '—' },
-                                { label: 'Year of Study', val: user?.currentYear ? `Year ${user.currentYear}` : '—', delta: user?.educationalLevel || 'Student' },
+                                {
+                                    label: 'Readiness Score',
+                                    val: allData.skillGaps?.totals?.readiness !== undefined
+                                        ? `${Math.round(allData.skillGaps.totals.readiness)}%`
+                                        : 'NaN',
+                                    delta: allData.skillGaps?.totals?.readiness !== undefined
+                                        ? 'Calculated from gap analysis'
+                                        : 'Perform assessment to get insights'
+                                },
+                                {
+                                    label: 'Assessment Avg',
+                                    val: allData.testScores?.total_score !== undefined
+                                        ? `${Math.round(allData.testScores.total_score * 100)}%`
+                                        : 'NaN',
+                                    delta: allData.testScores?.total_score !== undefined
+                                        ? `${Object.keys(allData.testScores.scores || {}).length} skills tested`
+                                        : 'Start your first assessment'
+                                },
+                                {
+                                    label: 'Rankings',
+                                    val: allData.careerMatches?.top_matches?.[0]
+                                        ? `#1 ${allData.careerMatches.top_matches[0].role}`
+                                        : '—',
+                                    delta: allData.careerMatches?.top_matches
+                                        ? `${allData.careerMatches.top_matches.length} matches found`
+                                        : 'Find your career match'
+                                },
                             ].map(({ label, val, delta }) => (
                                 <div key={label} style={s.card}>
                                     <div style={s.label}>{label}</div>
@@ -1359,24 +1459,24 @@ export default function Dashboard() {
                                     <h4 style={{ ...s.h4, marginBottom: 0 }}>Progress Overview</h4>
                                     <TrendingUp size={16} color="rgba(240,255,223,0.3)" />
                                 </div>
-                                {PROGRESS.map((p) => <ProgressBar key={p.label} {...p} />)}
+                                {getProgressData().map((p) => <ProgressBar key={p.label} {...p} />)}
                             </div>
                         </div>
 
                         {/* Assessment Score Chart */}
-                        <ScoreBarChart uid={user?.uid} s={s} />
+                        <ScoreBarChart data={allData.testScores} s={s} />
 
                     </>
                 )}
 
                 {/* ── Resume Info tab ── */}
                 {activeTab === 'Resume Info' && (
-                    <ResumeInfoTab uid={user?.uid} userName={user?.fullName || user?.username || ''} />
+                    <ResumeInfoTab uid={user?.uid} userName={user?.fullName || user?.username || ''} initialData={allData.resumes} />
                 )}
 
                 {/* ── GitHub Research tab ── */}
                 {activeTab === 'GitHub Research' && (
-                    <GitHubScraperTab uid={user?.uid} />
+                    <GitHubScraperTab uid={user?.uid} initialData={allData.githubScrapes} />
                 )}
 
                 {/* ── Assessment tab ── */}
@@ -1386,22 +1486,22 @@ export default function Dashboard() {
 
                 {/* ── Skill Gap tab ── */}
                 {activeTab === 'Skill Gap' && (
-                    <SkillGapTab user={user} />
+                    <SkillGapTab user={user} initialData={allData.skillGaps} testScores={allData.testScores} />
                 )}
 
                 {/* ── SWOT Analysis tab ── */}
                 {activeTab === 'SWOT Analysis' && (
-                    <SWOTTab user={user} />
+                    <SWOTTab user={user} initialData={allData.swot} skillGaps={allData.skillGaps} testScores={allData.testScores} />
                 )}
 
                 {/* ── Career Match tab ── */}
                 {activeTab === 'Career Match' && (
-                    <CareerMatchTab user={user} />
+                    <CareerMatchTab user={user} initialData={allData.careerMatches} testScores={allData.testScores} />
                 )}
 
                 {/* ── Roadmap tab ── */}
                 {activeTab === 'Roadmap' && (
-                    <RoadmapTab user={user} />
+                    <RoadmapTab user={user} initialData={allData.roadmaps} careerMatches={allData.careerMatches} testScores={allData.testScores} skillGaps={allData.skillGaps} swot={allData.swot} />
                 )}
             </main>
         </div>
@@ -1416,10 +1516,17 @@ const SWOT_CONFIG = {
     threats: { label: 'Threats', emoji: '🛡️', color: '#fbbf24', bg: 'rgba(251,191,36,0.09)', border: 'rgba(251,191,36,0.28)' },
 };
 
-function SWOTTab({ user }) {
-    const [state, setState] = useState('idle');
-    const [swot, setSwot] = useState(null);
+function SWOTTab({ user, initialData, skillGaps, testScores }) {
+    const [state, setState] = useState(initialData && Object.keys(initialData).length > 0 ? 'done' : 'idle');
+    const [swot, setSwot] = useState(initialData && Object.keys(initialData).length > 0 ? initialData : null);
     const [errMsg, setErrMsg] = useState('');
+
+    useEffect(() => {
+        if (initialData && Object.keys(initialData).length > 0) {
+            setSwot(initialData);
+            setState('done');
+        }
+    }, [initialData]);
 
     const uid = user?.uid;
     const domain = detectDomain(user?.interests);
@@ -1428,24 +1535,28 @@ function SWOTTab({ user }) {
     const runSWOT = async () => {
         setState('loading'); setErrMsg('');
 
-        // Read skill gap from Firestore skill_gaps
-        let skill_results = {}, totals = {}, role = '';
-        try {
-            const snap = await getDoc(doc(db, 'skill_gaps', uid));
-            if (snap.exists()) {
-                const d = snap.data();
-                skill_results = d.skill_results || {};
-                totals = d.totals || {};
-                role = d.role || '';
-            }
-        } catch (e) { console.warn('Firestore skill_gaps', e); }
+        // Read skill gap from props or Firestore
+        let skill_results = skillGaps?.skill_results || {}, totals = skillGaps?.totals || {}, role = skillGaps?.role || '';
+        if (!skillGaps || Object.keys(skillGaps).length === 0) {
+            try {
+                const snap = await getDoc(doc(db, 'skill_gaps', uid));
+                if (snap.exists()) {
+                    const d = snap.data();
+                    skill_results = d.skill_results || {};
+                    totals = d.totals || {};
+                    role = d.role || '';
+                }
+            } catch (e) { console.warn('Firestore skill_gaps', e); }
+        }
 
-        // ALSO read test_scores as supplementary context
-        let test_scores = {};
-        try {
-            const tSnap = await getDoc(doc(db, 'test_scores', uid));
-            if (tSnap.exists()) test_scores = tSnap.data().scores || {};
-        } catch (e) { console.warn('Firestore test_scores', e); }
+        // ALSO read test_scores from props or Firestore
+        let scores = testScores?.scores || {};
+        if (!testScores || Object.keys(testScores).length === 0) {
+            try {
+                const tSnap = await getDoc(doc(db, 'test_scores', uid));
+                if (tSnap.exists()) scores = tSnap.data().scores || {};
+            } catch (e) { console.warn('Firestore test_scores', e); }
+        }
 
         // Build full user profile context
         const profile = {

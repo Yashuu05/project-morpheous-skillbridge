@@ -24,12 +24,21 @@ function ScoreBar({ label, score, weighted, weight, color, formula }) {
     );
 }
 
-export default function CareerMatchTab({ user }) {
-    const [state, setState] = useState('idle');
-    const [matchData, setMatchData] = useState(null);
+export default function CareerMatchTab({ user, initialData, testScores }) {
+    const [state, setState] = useState(initialData && Object.keys(initialData).length > 0 ? 'done' : 'idle');
+    const [matchData, setMatchData] = useState(initialData && Object.keys(initialData).length > 0 ? initialData : null);
     const [errMsg, setErrMsg] = useState('');
-    const [saved, setSaved] = useState(false);
+    const [saved, setSaved] = useState(initialData && Object.keys(initialData).length > 0);
     const [expanded, setExpanded] = useState({});
+
+    // Sync with real-time data
+    React.useEffect(() => {
+        if (initialData && Object.keys(initialData).length > 0) {
+            setMatchData(initialData);
+            setState('done');
+            setSaved(true);
+        }
+    }, [initialData]);
 
     const uid = user?.uid;
     const skills = user?.skills || [];
@@ -37,17 +46,19 @@ export default function CareerMatchTab({ user }) {
 
     const runMatch = async () => {
         setState('loading'); setErrMsg('');
-        let test_scores = {};
-        try {
-            const snap = await getDoc(doc(db, 'test_scores', uid));
-            if (snap.exists()) test_scores = snap.data().scores || {};
-        } catch (e) { console.warn('Firestore test_scores', e); }
+        let scores = testScores?.scores || {};
+        if (!testScores || Object.keys(testScores).length === 0) {
+            try {
+                const snap = await getDoc(doc(db, 'test_scores', uid));
+                if (snap.exists()) scores = snap.data().scores || {};
+            } catch (e) { console.warn('Firestore test_scores', e); }
+        }
 
         try {
             const res = await fetch('/api/career/match', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ skills, interests, test_scores }),
+                body: JSON.stringify({ skills, interests, test_scores: scores }),
             });
             const data = await res.json();
             if (!res.ok || data.error) { setErrMsg(data.error || 'Matching failed.'); setState('error'); return; }
